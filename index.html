@@ -8,7 +8,7 @@
     <!-- Google Fonts: Combined Neonderthaw, Orbitron, and Rajdhani -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Neonderthaw&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Neonderthaw&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -46,8 +46,7 @@
                Remove the background-image SVG and replace it with your image url:
                background: url('path/to/your/image.jpg') no-repeat center center / cover;
             */
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="50" y="50" font-size="20" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="%23ff2a85" opacity="0.3">✦</text></svg>');
-            background-repeat: repeat;
+            background: url('images/bkg-bar.png') no-repeat center center / cover;
         }
 
         /* Ambient gradient to tie the background to the center */
@@ -60,11 +59,17 @@
         /* --- Custom Cursor System --- */
         #custom-cursor {
             position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
-            color: var(--neon-pink); font-size: 1.5rem; text-shadow: 0 0 10px var(--neon-pink);
-            transform: translate(-50%, -50%); transition: transform 0.15s ease, color 0.15s ease, text-shadow 0.15s ease;
+            transform: translate(-50%, -50%); transition: transform 0.15s ease, filter 0.15s ease;
+        }
+        #custom-cursor img {
+            width: 28px; height: 28px; display: block;
+            filter: drop-shadow(0 0 10px var(--neon-pink));
         }
         #custom-cursor.hovering {
-            transform: translate(-50%, -50%) scale(1.4); color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green);
+            transform: translate(-50%, -50%) scale(1.4);
+        }
+        #custom-cursor.hovering img {
+            filter: drop-shadow(0 0 12px var(--neon-green));
         }
         @media (pointer: coarse) {
             #custom-cursor { display: none !important; }
@@ -100,33 +105,41 @@
             animation: border-pulse-pink 4s infinite alternate; 
             position: relative;
             transition: all 0.05s;
+            border-top: 4px solid #fff;
         }
+
 
         /* --- Title (Neonderthaw Script) --- */
         .main-title {
             position: absolute;
-            top: 0; left: 50%; 
-            transform: translate(-50%, -50%); 
-            text-align: center; 
-            
-            /* Apply Neonderthaw font styling */
+            top: 0; left: 50%;
+            /* Place the text so its bottom sits on the top border */
+            transform: translate(-50%, -100%);
+            text-align: center;
             font-family: "Neonderthaw", cursive;
             font-weight: 400;
             font-style: normal;
-            font-size: 5.5rem; /* Neonderthaw renders small, so we bump the size up considerably */
-            line-height: 0.8; /* Keeps the bounding box tight to the script */
-            
-            color: #fff; /* White-hot core */
-            text-shadow: 
+            font-size: 5.5rem;
+            line-height: 0.8;
+            color: #fff;
+            text-shadow:
                 0 0 5px #fff,
                 0 0 10px #fff,
                 0 0 20px var(--neon-pink),
                 0 0 40px var(--neon-pink),
-                0 0 80px var(--neon-pink); /* Deep, heavy glow for that lit-up look */
-                
+                0 0 80px var(--neon-pink);
             white-space: nowrap;
-            background: transparent; 
-            z-index: 2; transition: all 0.05s;
+            background: none;
+            box-shadow: none;
+            border-radius: 1em;
+            display: inline-block;
+            padding: 0 40px;
+            z-index: 10;
+            transition: all 0.05s;
+        }
+
+        .main-title::before {
+            display: none;
         }
 
         /* --- Failing Neon Flicker State --- */
@@ -142,17 +155,28 @@
 
         /* --- Easter Eggs (Subtle blending opacity) --- */
         .hidden-corn {
-            position: absolute; font-size: 1.5rem; z-index: 10;
-            opacity: 0.35; 
-            transition: transform 0.2s, opacity 0.2s; user-select: none; filter: drop-shadow(0 0 5px rgba(255, 255, 0, 0.5));
+            position: absolute; z-index: 10;
+            opacity: 0.35;
+            transition: transform 0.2s, opacity 0.2s, filter 0.2s;
+            user-select: none;
+            --corn-offset-x: 0px;
+            --corn-offset-y: 0px;
+            --corn-rotate: 0deg;
+            transform: rotate(var(--corn-rotate)) translate(var(--corn-offset-x), var(--corn-offset-y));
+            filter: drop-shadow(0 0 5px rgba(255, 255, 0, 0.5));
         }
+        .hidden-corn img { width: 28px; height: 28px; display: block; }
         .hidden-corn:hover { 
-            transform: scale(1.3); 
+            transform: rotate(var(--corn-rotate)) translate(var(--corn-offset-x), var(--corn-offset-y)) scale(1.3); 
             opacity: 1; 
         }
-        #corn-1 { top: -12px; left: 30px; transform: rotate(-20deg); }
-        #corn-2 { top: 45%; right: -10px; transform: rotate(15deg); }
-        #corn-3 { bottom: 85px; left: 15px; transform: rotate(-10deg); font-size: 1.2rem; }
+        .hidden-corn.glow {
+            opacity: 1;
+            filter: drop-shadow(0 0 12px var(--neon-green)) drop-shadow(0 0 20px var(--neon-green));
+        }
+        #corn-1 { top: -12px; left: 30px; --corn-rotate: -20deg; }
+        #corn-2 { top: 45%; right: -10px; --corn-rotate: 15deg; }
+        #corn-3 { bottom: 85px; left: 15px; --corn-rotate: -10deg; }
 
         #toast-notification {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -168,6 +192,7 @@
             background: rgba(57, 255, 20, 0.05);
             text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-green); 
             box-shadow: 0 0 5px #fff, 0 0 15px var(--neon-green), inset 0 0 10px var(--neon-green);
+            margin-top: -30px;
             margin-bottom: 30px; animation: border-pulse-green 3s infinite alternate;
         }
 
@@ -176,17 +201,50 @@
         .feature-btn { background: transparent; border: none; color: #fff; text-align: center; transition: transform 0.3s; }
         .feature-btn:hover { transform: scale(1.1); }
         
-        .feature-icon-wrapper { font-size: 3.5rem; color: #fff; text-shadow: 0 0 5px #fff, 0 0 15px var(--neon-pink), 0 0 30px var(--neon-pink); margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
-        .feature-btn:nth-child(2) .feature-icon-wrapper { animation-delay: 1.5s; text-shadow: 0 0 5px #fff, 0 0 15px var(--neon-green), 0 0 30px var(--neon-green); }
-        .feature-text { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+        .feature-icon-wrapper { font-size: 3.5rem; color: #fff; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+        .feature-icon-image { width: 56px; height: 56px; display: block; filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px var(--neon-pink)) drop-shadow(0 0 24px var(--neon-pink)); }
+        .feature-btn:nth-child(2) .feature-icon-wrapper { animation-delay: 1.5s; }
+        .feature-btn:nth-child(2) .feature-icon-image { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px var(--neon-green)) drop-shadow(0 0 24px var(--neon-green)); }
+        .feature-text { font-size: 1.1rem; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; font-family: "Monoton", cursive; }
 
         /* --- Center Section (Schedule & Dancers) --- */
         .center-stage { display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; position: relative; }
         .speech-bubble { border: 2px solid var(--neon-pink); border-radius: 20px; padding: 15px 25px; font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #fff; text-shadow: 0 0 8px var(--neon-pink); box-shadow: 0 0 10px rgba(255, 42, 133, 0.4); position: relative; margin-bottom: 25px; text-align: center; background: rgba(255, 42, 133, 0.1); }
+        .speech-bubble .wavy-text { display: inline-flex; }
+        .speech-bubble .wavy-text span { display: inline-block; animation: wavy-text 2.4s ease-in-out infinite; }
+        .speech-bubble .wavy-text span:nth-child(1) { animation-delay: 0s; }
+        .speech-bubble .wavy-text span:nth-child(2) { animation-delay: 0.05s; }
+        .speech-bubble .wavy-text span:nth-child(3) { animation-delay: 0.1s; }
+        .speech-bubble .wavy-text span:nth-child(4) { animation-delay: 0.15s; }
+        .speech-bubble .wavy-text span:nth-child(5) { animation-delay: 0.2s; }
+        .speech-bubble .wavy-text span:nth-child(6) { animation-delay: 0.25s; }
+        .speech-bubble .wavy-text span:nth-child(7) { animation-delay: 0.3s; }
+        .speech-bubble .wavy-text span:nth-child(8) { animation-delay: 0.35s; }
+        .speech-bubble .wavy-text span:nth-child(9) { animation-delay: 0.4s; }
+        .speech-bubble .wavy-text span:nth-child(10) { animation-delay: 0.45s; }
+        .speech-bubble .wavy-text span:nth-child(11) { animation-delay: 0.5s; }
+        .speech-bubble .wavy-text span:nth-child(12) { animation-delay: 0.55s; }
+        .speech-bubble .wavy-text span:nth-child(13) { animation-delay: 0.6s; }
+        .speech-bubble .wavy-text span:nth-child(14) { animation-delay: 0.65s; }
+        .speech-bubble .wavy-text span:nth-child(15) { animation-delay: 0.7s; }
+        .speech-bubble .wavy-text span:nth-child(16) { animation-delay: 0.75s; }
+        .speech-bubble .wavy-text span:nth-child(17) { animation-delay: 0.8s; }
+        .speech-bubble .wavy-text span:nth-child(18) { animation-delay: 0.85s; }
+        .speech-bubble .wavy-text span:nth-child(19) { animation-delay: 0.9s; }
+        .speech-bubble .wavy-text span:nth-child(20) { animation-delay: 0.95s; }
+        .speech-bubble .wavy-text span:nth-child(21) { animation-delay: 1s; }
+        .speech-bubble .wavy-text span:nth-child(22) { animation-delay: 1.05s; }
+        .speech-bubble .wavy-text span:nth-child(23) { animation-delay: 1.1s; }
+        .speech-bubble .wavy-text span:nth-child(24) { animation-delay: 1.15s; }
+        .speech-bubble .wavy-text span:nth-child(25) { animation-delay: 1.2s; }
+        .speech-bubble .wavy-text span:nth-child(26) { animation-delay: 1.25s; }
+        .speech-bubble .wavy-text span:nth-child(27) { animation-delay: 1.3s; }
         .speech-bubble::after { content: ''; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); border-width: 15px 15px 0; border-style: solid; border-color: var(--neon-pink) transparent transparent transparent; display: block; width: 0; }
         .speech-bubble::before { content: ''; position: absolute; bottom: -11px; left: 50%; transform: translateX(-50%); border-width: 13px 13px 0; border-style: solid; border-color: #0d0d12 transparent transparent transparent; display: block; width: 0; z-index: 1; }
 
-        .dancers { display: flex; justify-content: center; gap: 20px; font-size: 3rem; color: #fff; text-shadow: 0 0 15px var(--neon-green); }
+        .dancers { display: flex; justify-content: center; gap: 20px; }
+        .dancer-image { width: 48px; height: 48px; display: block; filter: drop-shadow(0 0 10px var(--neon-green)); }
+        .dancer-image.is-bunny { position: relative; transition: transform 0.8s ease; will-change: transform; }
 
         /* --- SPRITE ANIMATION SYSTEM CSS --- */
         .sprite-animator { display: inline-flex; justify-content: center; align-items: center; transition: transform 0.1s; }
@@ -195,10 +253,15 @@
 
         /* --- Bottom Bar (Footer Actions) --- */
         .action-footer { display: flex; justify-content: space-between; align-items: stretch; border: 2px solid var(--neon-green); border-radius: 20px; padding: 5px; background: rgba(57, 255, 20, 0.05); box-shadow: 0 0 15px rgba(57, 255, 20, 0.2); }
-        .footer-btn { background: transparent; border: 2px solid transparent; color: #fff; padding: 10px 20px; border-radius: 15px; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; transition: all 0.3s; text-transform: uppercase; }
+        .footer-btn { background: transparent; border: 2px solid transparent; color: #fff; padding: 10px 20px; border-radius: 15px; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; transition: all 0.3s; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; }
+        .footer-btn .btn-icon { font-size: 1.1rem; }
         .footer-btn:hover { border-color: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); color: #fff; }
         .time-display { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 20px; border-left: 2px solid rgba(57, 255, 20, 0.3); border-right: 2px solid rgba(57, 255, 20, 0.3); }
-        .time-label { font-size: 0.9rem; color: #aaa; text-transform: uppercase; }
+        .time-display.is-live { border-left-color: rgba(57, 255, 20, 0.7); border-right-color: rgba(57, 255, 20, 0.7); }
+        .time-display.is-closed { border-left-color: rgba(255, 42, 133, 0.7); border-right-color: rgba(255, 42, 133, 0.7); }
+        .time-label { font-size: 0.9rem; color: #aaa; text-transform: uppercase; display: flex; align-items: center; gap: 8px; justify-content: center; }
+        .time-label .views-wrap { display: none; align-items: center; gap: 4px; font-size: 0.85rem; text-transform: none; }
+        .time-label.show-views .views-wrap { display: inline-flex; }
         .time-clock { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; color: #fff; text-shadow: 0 0 10px var(--neon-green); }
 
         /* --- Modals --- */
@@ -210,15 +273,17 @@
         .scrollable-area::-webkit-scrollbar { width: 6px; }
         .scrollable-area::-webkit-scrollbar-track { background: rgba(255, 42, 133, 0.1); border-radius: 10px; }
         .scrollable-area::-webkit-scrollbar-thumb { background: var(--neon-pink); border-radius: 10px; box-shadow: 0 0 5px var(--neon-pink); }
-        .menu-top-art { text-align: center; font-size: 4rem; color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green); margin-bottom: 20px; }
+        .menu-top-art { text-align: center; font-size: 4rem; color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green); margin-bottom: 20px; display: flex; justify-content: center; }
         .menu-table-container { border: 2px solid rgba(57, 255, 20, 0.5); border-radius: 15px; padding: 10px; background: rgba(57, 255, 20, 0.05); }
         .menu-header-row { display: grid; grid-template-columns: 40px 1.2fr 60px 1.5fr; gap: 10px; font-family: 'Orbitron', sans-serif; color: var(--neon-green); border-bottom: 2px solid rgba(57, 255, 20, 0.5); padding-bottom: 10px; margin-bottom: 10px; font-size: 0.9rem; }
         .menu-item-row { display: grid; grid-template-columns: 40px 1.2fr 60px 1.5fr; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
         .menu-item-row:last-child { border-bottom: none; }
-        .menu-item-icon { width: 35px; height: 35px; border: 1px solid var(--neon-pink); border-radius: 8px; background: rgba(255, 42, 133, 0.1); display: flex; justify-content: center; align-items: center; color: #fff; text-shadow: 0 0 5px var(--neon-pink); font-size: 0.9rem; }
+        .menu-item-icon { width: 35px; height: 35px; border: 1px solid var(--neon-pink); border-radius: 8px; background: rgba(255, 42, 133, 0.1); display: flex; justify-content: center; align-items: center; color: #fff; text-shadow: 0 0 5px var(--neon-pink); font-size: 0.9rem; overflow: hidden; }
+        .menu-item-icon img { width: 100%; height: 100%; object-fit: cover; }
         .modal-title { text-align: center; font-family: 'Orbitron', sans-serif; color: #fff; text-shadow: 0 0 10px var(--neon-pink); margin-bottom: 25px; font-size: 2rem; letter-spacing: 2px; text-transform: uppercase; }
         .staff-item { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .staff-avatar { width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--neon-green); box-shadow: 0 0 10px rgba(57, 255, 20, 0.3); flex-shrink: 0; display: flex; justify-content: center; align-items: center; color: #fff; text-shadow: 0 0 10px var(--neon-green); font-size: 1.8rem; background: rgba(57, 255, 20, 0.05); }
+        .staff-avatar { width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--neon-green); box-shadow: 0 0 10px rgba(57, 255, 20, 0.3); flex-shrink: 0; display: flex; justify-content: center; align-items: center; color: #fff; text-shadow: 0 0 10px var(--neon-green); font-size: 1.8rem; background: rgba(57, 255, 20, 0.05); overflow: hidden; }
+        .staff-avatar-image { width: 100%; height: 100%; object-fit: cover; filter: drop-shadow(0 0 6px var(--neon-green)); }
         .staff-info { flex-grow: 1; border: 1px solid rgba(255, 42, 133, 0.5); border-radius: 12px; padding: 15px; background: rgba(255, 42, 133, 0.05); box-shadow: inset 0 0 10px rgba(255, 42, 133, 0.1); }
         .staff-name { font-family: 'Orbitron', sans-serif; color: #fff; text-shadow: 0 0 5px var(--neon-pink); font-size: 1.1rem; margin-bottom: 5px; }
         .staff-desc { color: #ccc; font-size: 0.95rem; }
@@ -247,6 +312,13 @@
         @keyframes border-pulse-green { 0% { box-shadow: 0 0 5px #fff, 0 0 10px rgba(57, 255, 20, 0.6), inset 0 0 5px rgba(57, 255, 20, 0.3); } 100% { box-shadow: 0 0 5px #fff, 0 0 20px rgba(57, 255, 20, 0.8), inset 0 0 15px rgba(57, 255, 20, 0.6); } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         @keyframes dance { 0% { transform: translateY(0) rotate(-5deg); } 100% { transform: translateY(-15px) rotate(5deg); } }
+        @keyframes wavy-text {
+            0% { transform: translateY(0) skewX(0deg); }
+            25% { transform: translateY(-2px) skewX(-1deg); }
+            50% { transform: translateY(1px) skewX(1deg); }
+            75% { transform: translateY(-1px) skewX(-0.5deg); }
+            100% { transform: translateY(0) skewX(0deg); }
+        }
         @keyframes modal-pop { 0% { transform: translate(-50%, -45%); opacity: 0; } 100% { transform: translate(-50%, -50%); opacity: 1; } }
         @keyframes sprite-shake { 0% { transform: rotate(-10deg) scale(1.1); } 100% { transform: rotate(10deg) scale(1.1); } }
 
@@ -272,7 +344,7 @@
     <div id="dim-overlay"></div>
 
     <!-- CUSTOM CURSOR DOM ELEMENT -->
-    <div id="custom-cursor"><i class="fa-solid fa-location-crosshairs"></i></div>
+    <div id="custom-cursor"><img src="images/curs-moogle.png" alt="Cursor"></div>
 
     <div id="toast-notification">Notification</div>
 
@@ -281,23 +353,23 @@
         <h1 class="main-title">Placeholder</h1>
 
         <!-- Hidden Easter Eggs -->
-        <div class="hidden-corn" id="corn-1">🌽</div>
-        <div class="hidden-corn" id="corn-2">🌽</div>
-        <div class="hidden-corn" id="corn-3">🌽</div>
+        <div class="hidden-corn" id="corn-1"><img src="images/item-corn.png" alt="Corn"></div>
+        <div class="hidden-corn" id="corn-2"><img src="images/item-corn.png" alt="Corn"></div>
+        <div class="hidden-corn" id="corn-3"><img src="images/item-corn.png" alt="Corn"></div>
 
         <div class="location-header">CRYSTAL | BEHEMOTH | LIMSA | W17 | P1</div>
 
         <!-- Middle Section: Staff & Menu -->
         <div class="top-features">
             <button class="feature-btn" id="btn-staff">
-                <div class="feature-icon-wrapper sprite-animator" data-state="idle" data-icon-idle="fa-solid fa-bed" data-icon-action="fa-solid fa-user-ninja">
-                    <i class="fa-solid fa-bed"></i> 
+                <div class="feature-icon-wrapper sprite-animator" data-state="idle">
+                    <img class="feature-icon-image" src="images/px-point.png" alt="Staff icon">
                 </div>
                 <div class="feature-text">Staff</div>
             </button>
             <button class="feature-btn" id="btn-menu">
-                <div class="feature-icon-wrapper sprite-animator" data-state="idle" data-icon-idle="fa-solid fa-martini-glass-citrus" data-icon-action="fa-solid fa-wine-glass">
-                    <i class="fa-solid fa-martini-glass-citrus"></i>
+                <div class="feature-icon-wrapper sprite-animator" data-state="idle">
+                    <img class="feature-icon-image" src="images/px-azim.png" alt="Menu icon">
                 </div>
                 <div class="feature-text">Menu</div>
             </button>
@@ -305,22 +377,22 @@
 
         <!-- Center Section: Schedule & Activity -->
         <div class="center-stage">
-            <div class="speech-bubble">Saturday - Sunday: 11:00-3:00</div>
+            <div class="speech-bubble"><span class="wavy-text"><span>S</span><span>a</span><span>t</span><span>u</span><span>r</span><span>d</span><span>a</span><span>y</span><span> </span><span>-</span><span> </span><span>S</span><span>u</span><span>n</span><span>d</span><span>a</span><span>y</span><span>:</span><span> </span><span>1</span><span>1</span><span>:</span><span>0</span><span>0</span><span>-</span><span>3</span><span>:</span><span>0</span><span>0</span></span></div>
             <div class="dancers">
-                <div class="sprite-animator is-dancer" data-state="idle"><i class="fa-solid fa-child-reaching"></i></div>
-                <div class="sprite-animator is-dancer" data-state="idle"><i class="fa-solid fa-street-view"></i></div>
-                <div class="sprite-animator is-dancer" data-state="idle"><i class="fa-solid fa-child-reaching"></i></div>
+                <img class="dancer-image is-bunny" src="images/px-bunny.png" alt="Bunny">
+                <img class="dancer-image" src="images/px-corn.png" alt="Corn">
+                <img class="dancer-image is-bunny" src="images/px-bunny.png" alt="Bunny">
             </div>
         </div>
 
         <!-- Bottom Footer Section -->
         <div class="action-footer">
-            <button class="footer-btn" id="btn-share">Share</button>
+            <button class="footer-btn" id="btn-share"><i class="fa-solid fa-share-nodes btn-icon"></i>Share</button>
             <div class="time-display">
-                <span class="time-label">Live Time</span>
+                <span class="time-label"><span class="time-label-text">Live Time</span><span class="views-wrap"><i class="fa-solid fa-user"></i><span id="page-views">0</span></span></span>
                 <span class="time-clock" id="live-clock">00:00:00</span>
             </div>
-            <button class="footer-btn" id="btn-discord">Discord</button>
+            <button class="footer-btn" id="btn-discord"><i class="fa-brands fa-discord btn-icon"></i>Discord</button>
         </div>
     </div>
 
@@ -328,17 +400,18 @@
     <div class="modal-overlay" id="main-modal-overlay">
         <div class="modal-container" id="menu-modal">
             <span class="close-btn"><i class="fa-solid fa-xmark"></i></span>
-            <div class="menu-top-art sprite-animator" data-state="idle" data-icon-idle="fa-solid fa-martini-glass-citrus"><i class="fa-solid fa-martini-glass-citrus"></i></div>
+            <div class="menu-top-art sprite-animator" data-state="idle" data-icon-idle="fa-solid fa-wine-glass"><i class="fa-solid fa-wine-glass"></i></div>
             
             <div class="menu-table-container">
                 <div class="menu-header-row">
                     <span></span><span>Items</span><span>Price</span><span>Description</span>
                 </div>
                 <div class="scrollable-area">
-                    <div class="menu-item-row"><div class="menu-item-icon sprite-animator" data-state="idle"><i class="fa-solid fa-wine-bottle"></i></div><div>Item Name</div><div>20G</div><div>Corn Meal</div></div>
-                    <div class="menu-item-row"><div class="menu-item-icon sprite-animator" data-state="idle"><i class="fa-solid fa-beer-mug-empty"></i></div><div>Item Name</div><div>20G</div><div>Corn Meal</div></div>
-                    <div class="menu-item-row"><div class="menu-item-icon sprite-animator" data-state="idle"><i class="fa-solid fa-cake-candles"></i></div><div>Item Name</div><div>20G</div><div>Corn Meal</div></div>
-                    <div class="menu-item-row"><div class="menu-item-icon sprite-animator" data-state="idle"><i class="fa-solid fa-bowl-food"></i></div><div>Item Name</div><div>20G</div><div>Corn Meal</div></div>
+                    <div class="menu-item-row"><div class="menu-item-icon"><img src="images/item-carmal.png" alt="Caramel Corn"></div><div>Caramel Corn</div><div>45G</div><div>Sweet glazed kernels</div></div>
+                    <div class="menu-item-row"><div class="menu-item-icon"><img src="images/item-corn.png" alt="Corn"></div><div>Corn</div><div>25G</div><div>Classic buttered cob</div></div>
+                    <div class="menu-item-row"><div class="menu-item-icon"><img src="images/item-cornbread.png" alt="Corn Bread"></div><div>Corn Bread</div><div>40G</div><div>Warm honey slice</div></div>
+                    <div class="menu-item-row"><div class="menu-item-icon"><img src="images/item-cornmeal.png" alt="Corn Meal"></div><div>Corn Meal</div><div>30G</div><div>Stone-ground bowl</div></div>
+                    <div class="menu-item-row"><div class="menu-item-icon"><img src="images/item-flint.png" alt="Flint Corn"></div><div>Flint Corn</div><div>55G</div><div>Crunchy roasted kernels</div></div>
                 </div>
             </div>
         </div>
@@ -347,9 +420,10 @@
             <span class="close-btn"><i class="fa-solid fa-xmark"></i></span>
             <h2 class="modal-title" style="font-family: 'Orbitron', sans-serif;">Staff</h2>
             <div class="scrollable-area">
-                <div class="staff-item"><div class="staff-avatar sprite-animator" data-state="idle"><i class="fa-solid fa-user-astronaut"></i></div><div class="staff-info"><div class="staff-name">Staff Member 1</div><div class="staff-desc">Bartender / Security</div></div></div>
-                <div class="staff-item"><div class="staff-avatar sprite-animator" data-state="idle"><i class="fa-solid fa-user-ninja"></i></div><div class="staff-info"><div class="staff-name">Staff Member 2</div><div class="staff-desc">Dancer / DJ</div></div></div>
-                <div class="staff-item"><div class="staff-avatar sprite-animator" data-state="idle"><i class="fa-solid fa-user-secret"></i></div><div class="staff-info"><div class="staff-name">Staff Member 3</div><div class="staff-desc">Manager / Host</div></div></div>
+                <div class="staff-item"><div class="staff-avatar"><img class="staff-avatar-image" src="images/hds-bunny.png" alt="Bunny"></div><div class="staff-info"><div class="staff-name">Bunny</div><div class="staff-desc">Host</div></div></div>
+                <div class="staff-item"><div class="staff-avatar"><img class="staff-avatar-image" src="images/hds-azim.png" alt="Azim"></div><div class="staff-info"><div class="staff-name">Azim</div><div class="staff-desc">Pimp</div></div></div>
+                <div class="staff-item"><div class="staff-avatar"><img class="staff-avatar-image" src="images/hds-corn.png" alt="Corn"></div><div class="staff-info"><div class="staff-name">Corn</div><div class="staff-desc">Corn</div></div></div>
+                <div class="staff-item"><div class="staff-avatar"><img class="staff-avatar-image" src="images/hds-chkn.png" alt="Chicken"></div><div class="staff-info"><div class="staff-name">Chicken</div><div class="staff-desc">Food</div></div></div>
             </div>
         </div>
     </div>
@@ -366,7 +440,7 @@
             <div class="game-canvas-wrapper">
                 <div id="start-screen" class="game-ui-overlay">
                     <h2 class="game-ui-title" style="font-family: 'Orbitron', sans-serif;">Corn Ninja</h2>
-                    <p class="game-ui-desc">Slice the flying corns. Don't let them fall!<br>Score 200 to win.</p>
+                    <p class="game-ui-desc">Slice the flying corns. Don't let them fall!<br>Score <span id="win-score">3000</span> to win.</p>
                     <button class="footer-btn" id="start-game-btn">Start Game</button>
                 </div>
                 
@@ -435,6 +509,30 @@
                 function() { $('#custom-cursor').removeClass('hovering'); }
             );
 
+            function updateBunnyHorizontal() {
+                $('.dancer-image.is-bunny').each(function() {
+                    const x = (Math.random() * 16 - 8).toFixed(1);
+                    const flip = x < 0 ? -1 : 1;
+                    $(this).data('bunnyX', x).data('bunnyFlip', flip);
+                });
+                const delay = 1600 + Math.random() * 1200;
+                setTimeout(updateBunnyHorizontal, delay);
+            }
+
+            function updateBunnyVertical() {
+                $('.dancer-image.is-bunny').each(function() {
+                    const x = $(this).data('bunnyX') ?? 0;
+                    const flip = $(this).data('bunnyFlip') ?? 1;
+                    const y = (Math.random() * 12 - 6).toFixed(1);
+                    $(this).css('transform', `translate(${x}px, ${y}px) scaleX(${flip})`);
+                });
+                const delay = 400 + Math.random() * 300;
+                setTimeout(updateBunnyVertical, delay);
+            }
+
+            updateBunnyHorizontal();
+            updateBunnyVertical();
+
             // --- Sprite Animation Controller ---
             function playSpriteAnimation($el, state, duration) {
                 $el.attr('data-state', state);
@@ -456,13 +554,108 @@
             // --- General UI Logic --- //
             function updateClock() {
                 const now = new Date();
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                $('#live-clock').text(`${hours}:${minutes}:${seconds}`);
+                const schedule = {
+                    days: [0, 6],
+                    startHour: 11,
+                    startMinute: 0,
+                    endHour: 3,
+                    endMinute: 0
+                };
+
+                function getNextWindow(dayOffset) {
+                    const day = new Date(now);
+                    day.setDate(now.getDate() + dayOffset);
+                    const start = new Date(day);
+                    start.setHours(schedule.startHour, schedule.startMinute, 0, 0);
+                    const end = new Date(day);
+                    end.setHours(schedule.endHour, schedule.endMinute, 0, 0);
+                    if (end <= start) end.setDate(end.getDate() + 1);
+                    return { start, end };
+                }
+
+                let currentWindow = null;
+                for (let offset = -1; offset <= 1; offset++) {
+                    const targetDay = (now.getDay() + offset + 7) % 7;
+                    if (!schedule.days.includes(targetDay)) continue;
+                    const window = getNextWindow(offset);
+                    if (now >= window.start && now <= window.end) {
+                        currentWindow = { state: 'OPEN', target: window.end };
+                        break;
+                    }
+                }
+
+                if (!currentWindow) {
+                    let nextStart = null;
+                    for (let offset = 0; offset <= 7; offset++) {
+                        const targetDay = (now.getDay() + offset) % 7;
+                        if (!schedule.days.includes(targetDay)) continue;
+                        const window = getNextWindow(offset);
+                        if (window.start > now) {
+                            nextStart = window.start;
+                            break;
+                        }
+                    }
+                    currentWindow = { state: 'CLOSED', target: nextStart };
+                }
+
+                const diffMs = Math.max(currentWindow.target - now, 0);
+                const totalSeconds = Math.floor(diffMs / 1000);
+                const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+                const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+                const seconds = String(totalSeconds % 60).padStart(2, '0');
+                const $timeDisplay = $('.time-display');
+                const $timeLabel = $('.time-label');
+                const $timeLabelText = $timeLabel.find('.time-label-text');
+                if (currentWindow.state === 'OPEN') {
+                    $timeDisplay.removeClass('is-closed').addClass('is-live');
+                    $timeLabel.removeClass('show-views');
+                    $timeLabelText.text('Live Time');
+                    $('#live-clock').text(`${hours}:${minutes}:${seconds}`);
+                } else {
+                    $timeDisplay.removeClass('is-live').addClass('is-closed');
+                    $timeLabel.addClass('show-views');
+                    $timeLabelText.text('Open Next');
+                    $('#live-clock').text(`${hours}:${minutes}:${seconds}`);
+                }
             }
             updateClock();
             setInterval(updateClock, 1000);
+
+            function updatePageViews() {
+                const launchDate = new Date('2024-11-19T00:00:00Z');
+                const visitorsPerHour = 0.6;
+                const now = new Date();
+                const hoursElapsed = Math.max(0, (now - launchDate) / 36e5);
+                const baseEstimate = visitorsPerHour * hoursElapsed;
+                const daySeed = now.toISOString().slice(0, 10);
+                let hash = 0;
+                for (let i = 0; i < daySeed.length; i++) {
+                    hash = (hash * 31 + daySeed.charCodeAt(i)) % 997;
+                }
+                const dailyVariance = hash % 200;
+                const estimatedVisitors = Math.floor(baseEstimate + dailyVariance);
+                const baseMax = 9000;
+                const year = now.getFullYear();
+                const maxViews = year >= 2027 ? baseMax + (year - 2026) * baseMax : baseMax;
+
+                const sessionKey = 'ffxv_session_visit';
+                const userVisitsKey = 'ffxv_user_visits';
+                const lastVisitKey = 'ffxv_last_visit';
+
+                let userVisits = parseInt(localStorage.getItem(userVisitsKey) || '0', 10);
+
+                if (!sessionStorage.getItem(sessionKey)) {
+                    userVisits += 1;
+                    localStorage.setItem(userVisitsKey, userVisits);
+                    localStorage.setItem(lastVisitKey, now.toISOString());
+                    sessionStorage.setItem(sessionKey, '1');
+                }
+
+                const totalViews = Math.min(Math.max(estimatedVisitors + userVisits, 1), maxViews);
+                $('#page-views').text(totalViews);
+            }
+
+            updatePageViews();
 
             function showToast(message) {
                 $('#toast-notification').text(message).fadeIn(200);
@@ -500,6 +693,34 @@
 
             // --- Easter Egg Logic --- //
             let cornsFound = 0;
+
+            function randomizeCornPositions() {
+                $('.hidden-corn').each(function() {
+                    const offsetX = (Math.random() * 10 - 5).toFixed(1);
+                    const offsetY = (Math.random() * 10 - 5).toFixed(1);
+                    $(this).css({
+                        '--corn-offset-x': `${offsetX}px`,
+                        '--corn-offset-y': `${offsetY}px`
+                    });
+                });
+            }
+
+            function scheduleCornGlow() {
+                const delay = 10000 + Math.random() * 5000;
+                setTimeout(() => {
+                    const $corns = $('.hidden-corn:visible');
+                    $corns.removeClass('glow');
+                    if ($corns.length) {
+                        const $target = $corns.eq(Math.floor(Math.random() * $corns.length));
+                        $target.addClass('glow');
+                        setTimeout(() => $target.removeClass('glow'), 1500);
+                    }
+                    scheduleCornGlow();
+                }, delay);
+            }
+
+            randomizeCornPositions();
+            scheduleCornGlow();
             $('.hidden-corn').click(function() {
                 if ($(this).hasClass('found')) return;
                 
@@ -522,13 +743,23 @@
             let gameActive = false;
             let score = 0;
             let lives = 3;
-            const WIN_SCORE = 200;
+            const WIN_SCORE = 3000;
             let gameEntities = [];
             let trail = [];
             let isSlicing = false;
             let animationFrameId;
 
             const $gameAvatar = $('#game-avatar');
+            $('#win-score').text(WIN_SCORE);
+            const itemImages = [
+                { key: 'corn', src: 'images/item-corn.png' },
+                { key: 'flint', src: 'images/item-flint.png' },
+                { key: 'caramel', src: 'images/item-carmal.png' }
+            ].map(item => {
+                const img = new Image();
+                img.src = item.src;
+                return { key: item.key, img };
+            });
 
             function resizeCanvas() {
                 canvas.width = canvas.parentElement.clientWidth;
@@ -573,23 +804,30 @@
                 cornsFound = 0;
                 $('.hidden-corn').removeClass('found').css({opacity: 0.35, pointerEvents: 'auto', display: 'block'});
                 $('#corn-1').css({top: '-12px'}); $('#corn-2').css({top: '45%'}); $('#corn-3').css({top: 'auto'});
+                randomizeCornPositions();
             }
 
             $('#close-game').click(closeMiniGame);
             $('#start-game-btn, #restart-game-btn-lose, #restart-game-btn-win').click(startGame);
 
+            function getDifficultySettings() {
+                const level = Math.floor(score / 250);
+                const gravity = 0.05 + (level * 0.015);
+                const spawnRate = 0.008 + (level * 0.006);
+                return { gravity, spawnRate };
+            }
+
             function spawnEntity() {
                 if (!gameActive) return;
-                let progress = Math.min(score / WIN_SCORE, 1);
-                let currentGravity = 0.08 + (0.17 * progress);
-                let currentSpawnRate = 0.015 + (0.045 * progress);
+                const { gravity, spawnRate } = getDifficultySettings();
 
-                if (Math.random() < currentSpawnRate) { 
+                if (Math.random() < spawnRate) { 
                     let jumpHeight = canvas.height * (0.60 + Math.random() * 0.35);
-                    let launchVy = -Math.sqrt(2 * currentGravity * jumpHeight);
+                    let launchVy = -Math.sqrt(2 * gravity * jumpHeight);
                     let baseVx = (canvas.width * 0.008); 
-                    let maxVx = baseVx * (1 + (progress * 1.5)); 
+                    let maxVx = baseVx * (1 + (score / 2000)); 
 
+                    const item = itemImages[Math.floor(Math.random() * itemImages.length)];
                     gameEntities.push({
                         x: Math.random() * (canvas.width - 100) + 50,
                         y: canvas.height + 60,
@@ -599,15 +837,14 @@
                         rotation: 0,
                         vr: (Math.random() - 0.5) * 0.2,
                         type: 'corn',
-                        icon: '🌽'
+                        img: item.img
                     });
                 }
             }
 
             function checkSlices(tx, ty) {
                 if (!gameActive) return;
-                let progress = Math.min(score / WIN_SCORE, 1);
-                let currentGravity = 0.08 + (0.17 * progress);
+                const { gravity: currentGravity } = getDifficultySettings();
 
                 for (let i = gameEntities.length - 1; i >= 0; i--) {
                     let e = gameEntities[i];
@@ -615,17 +852,23 @@
 
                     let dist = Math.hypot(e.x - tx, e.y - ty);
                     if (dist < e.radius) {
-                        e.type = 'popcorn'; e.icon = '🍿';
                         e.vy = -Math.sqrt(2 * currentGravity * (canvas.height * 0.15));
                         e.vx += (Math.random() - 0.5) * 8;
-                        
+
                         gameEntities.push({
                             x: e.x, y: e.y,
                             vx: e.vx - (Math.random() * 8 - 4), vy: e.vy - 1,
                             radius: 25, rotation: e.rotation, vr: -e.vr * 2,
-                            type: 'popcorn', icon: '🍿'
+                            type: 'sliced', img: e.img, sliceSide: 'left'
+                        });
+                        gameEntities.push({
+                            x: e.x, y: e.y,
+                            vx: e.vx + (Math.random() * 8 - 4), vy: e.vy - 1,
+                            radius: 25, rotation: e.rotation, vr: e.vr * 2,
+                            type: 'sliced', img: e.img, sliceSide: 'right'
                         });
 
+                        gameEntities.splice(i, 1);
                         score += 10;
                         $('#game-score').text(score);
                         if (score >= WIN_SCORE) winGame();
@@ -638,10 +881,12 @@
                 ctx.fillStyle = 'rgba(5, 5, 8, 0.4)'; 
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                let progress = Math.min(score / WIN_SCORE, 1);
-                let currentGravity = 0.08 + (0.17 * progress);
+                const { gravity: currentGravity } = getDifficultySettings();
 
                 spawnEntity();
+
+                const slicedEntities = [];
+                const activeEntities = [];
 
                 for (let i = gameEntities.length - 1; i >= 0; i--) {
                     let e = gameEntities[i];
@@ -650,21 +895,44 @@
                     if (e.x - e.radius < 0) { e.x = e.radius; e.vx *= -0.8; } 
                     else if (e.x + e.radius > canvas.width) { e.x = canvas.width - e.radius; e.vx *= -0.8; }
 
-                    ctx.save();
-                    ctx.translate(e.x, e.y);
-                    ctx.rotate(e.rotation);
-                    ctx.font = '50px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillText(e.icon, 0, 0);
-                    ctx.restore();
-
                     if (e.y > canvas.height + 60) {
                         if (e.type === 'corn') {
                             lives--; $('#game-lives').text(lives);
                             if (lives <= 0) loseGame();
                         }
                         gameEntities.splice(i, 1);
+                        continue;
+                    }
+
+                    if (e.type === 'sliced') {
+                        slicedEntities.push(e);
+                    } else {
+                        activeEntities.push(e);
                     }
                 }
+
+                function drawEntity(e, alpha, scale, blur) {
+                    if (!(e.img && e.img.complete)) return;
+                    ctx.save();
+                    ctx.translate(e.x, e.y);
+                    ctx.rotate(e.rotation);
+                    ctx.globalAlpha = alpha;
+                    if (blur) ctx.filter = blur;
+                    const size = e.radius * 2 * scale;
+                    const halfSize = size / 2;
+                    if (e.type === 'sliced' && e.sliceSide) {
+                        const sx = e.sliceSide === 'left' ? 0 : e.img.width / 2;
+                        const sw = e.img.width / 2;
+                        const dx = e.sliceSide === 'left' ? -halfSize : 0;
+                        ctx.drawImage(e.img, sx, 0, sw, e.img.height, dx, -halfSize, halfSize, size);
+                    } else {
+                        ctx.drawImage(e.img, -halfSize, -halfSize, size, size);
+                    }
+                    ctx.restore();
+                }
+
+                slicedEntities.forEach(e => drawEntity(e, 0.35, 0.9, 'blur(1px)'));
+                activeEntities.forEach(e => drawEntity(e, 1, 1, 'none'));
 
                 if (trail.length > 1) {
                     ctx.beginPath();
