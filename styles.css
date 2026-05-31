@@ -1,0 +1,519 @@
+/* ============================================================
+   PLACEHOLDER — Neon RPG Venue Landing
+   Sections:
+     1. Variables & reset
+     2. Ambient layers (background, particles, vignette, flicker)
+     3. Intro sequence
+     4. HUD panel + event card
+     5. Clickable NPCs / objects + tooltips
+     6. Quest tracker
+     7. Controls (sound / share)
+     8. Mascot + wandering minion
+     9. Dialogue modal + staff cards + item shop
+    10. Popups (achievement / toast)
+    11. Keyframe animations
+    12. Responsive
+   ============================================================ */
+
+/* ---------- 1. Variables & reset ---------- */
+:root {
+    --pink: #ff2a85;
+    --green: #39ff14;
+    --cyan: #28e0ff;
+    --gold: #ffd166;
+    --bg: #07070d;
+    --panel: rgba(13, 13, 22, 0.74);
+    --panel-solid: rgba(10, 10, 16, 0.96);
+    --ink: #f3f0ff;
+    --muted: #a9a6c6;
+    --font-script: "Neonderthaw", cursive;
+    --font-display: "Cinzel", serif;
+    --font-hud: "Orbitron", sans-serif;
+    --font-body: "Rajdhani", sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    min-height: 100dvh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+img { -webkit-user-drag: none; user-select: none; }
+
+.btn {
+    font-family: var(--font-hud);
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: rgba(255, 42, 133, 0.08);
+    border: 2px solid var(--pink);
+    border-radius: 12px;
+    padding: 12px 22px;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .25s, background .25s;
+    display: inline-flex; align-items: center; gap: 10px;
+}
+.btn:hover, .btn:focus-visible {
+    transform: translateY(-2px);
+    background: rgba(255, 42, 133, 0.2);
+    box-shadow: 0 0 14px var(--pink), inset 0 0 10px rgba(255, 42, 133, .4);
+    outline: none;
+}
+.btn--green { border-color: var(--green); background: rgba(57, 255, 20, .08); }
+.btn--green:hover, .btn--green:focus-visible { background: rgba(57, 255, 20, .2); box-shadow: 0 0 14px var(--green), inset 0 0 10px rgba(57,255,20,.4); }
+
+/* ---------- 2. Ambient layers ---------- */
+.bg-scene {
+    position: fixed; inset: 0; z-index: -3;
+    background: url("images/bkg-bar.png") no-repeat center center / cover;
+    /* Swap the url above for your own fantasy-lounge background later. */
+    opacity: .9;
+    animation: bg-drift 40s ease-in-out infinite alternate;
+}
+#particles { position: fixed; inset: 0; z-index: -2; pointer-events: none; }
+.vignette {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 38%, transparent 0%, rgba(5, 4, 12, .55) 70%, rgba(3, 2, 8, .92) 100%),
+        linear-gradient(180deg, rgba(120, 0, 80, .12), transparent 30%, rgba(0, 40, 60, .12));
+}
+/* Page-wide neon flicker dim */
+#flicker-dim {
+    position: fixed; inset: 0; z-index: 50; pointer-events: none;
+    background: rgba(0, 0, 0, .55); opacity: 0; mix-blend-mode: multiply;
+    transition: opacity .04s;
+}
+#flicker-dim.active { opacity: 1; }
+
+/* ---------- 3. Intro sequence ---------- */
+.intro {
+    position: fixed; inset: 0; z-index: 1000;
+    background: radial-gradient(circle at 50% 50%, rgba(20, 8, 24, .92), rgba(3, 2, 8, .98));
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(6px);
+    transition: opacity .8s ease, visibility .8s;
+}
+.intro.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+.intro__inner { text-align: center; padding: 24px; max-width: 640px; }
+.intro__line {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 4vw, 2.1rem);
+    color: var(--ink);
+    text-shadow: 0 0 12px var(--pink), 0 0 28px rgba(255, 42, 133, .5);
+    margin: 0 0 18px;
+    min-height: 1.4em;
+    opacity: 0;
+}
+.intro__line.show { opacity: 1; }
+.intro__line:nth-child(2) { color: #fff; text-shadow: 0 0 12px var(--green), 0 0 26px rgba(57,255,20,.5); }
+.btn--enter {
+    margin-top: 22px; font-size: 1.15rem; padding: 16px 32px;
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .5s ease, transform .5s ease, box-shadow .25s, background .25s;
+    animation: enter-pulse 2.4s ease-in-out infinite;
+}
+.btn--enter.show { opacity: 1; transform: translateY(0); }
+
+/* ---------- 4. HUD panel + event card ---------- */
+.scene {
+    position: relative; min-height: 100dvh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 90px 16px 40px;
+    opacity: 0; transition: opacity 1s ease .2s;
+}
+.scene.ready { opacity: 1; }
+
+.hud {
+    position: relative; z-index: 5;
+    width: 100%; max-width: 460px;
+    text-align: center;
+    padding: 46px 24px 26px;
+    background: var(--panel);
+    border: 3px solid #fff;
+    border-radius: 22px;
+    backdrop-filter: blur(7px);
+    box-shadow:
+        0 0 6px #fff, 0 0 20px var(--pink), 0 0 46px rgba(255, 42, 133, .6),
+        inset 0 0 18px rgba(255, 42, 133, .35);
+    animation: hud-pulse 4s ease-in-out infinite alternate;
+}
+.hud.flicker-off { border-color: #3a0f20 !important; box-shadow: none !important; animation: none !important; }
+
+.hud__title {
+    position: absolute; top: 0; left: 50%;
+    transform: translate(-50%, -64%);
+    font-family: var(--font-script);
+    font-weight: 400; font-size: clamp(3.4rem, 12vw, 5.2rem);
+    line-height: .8; white-space: nowrap; color: #fff;
+    text-shadow: 0 0 6px #fff, 0 0 12px var(--pink), 0 0 30px var(--pink), 0 0 60px var(--pink);
+    pointer-events: none;
+}
+.hud.flicker-off .hud__title { color: #3a0f20; text-shadow: 0 0 2px #110508; }
+
+.hud__location {
+    font-family: var(--font-hud);
+    font-size: clamp(.62rem, 2.6vw, .82rem);
+    letter-spacing: 2px; color: #fff;
+    border: 2px solid rgba(57, 255, 20, .6);
+    border-radius: 30px; padding: 9px 12px; margin-bottom: 22px;
+    background: rgba(57, 255, 20, .06);
+    text-shadow: 0 0 8px var(--green);
+    box-shadow: 0 0 12px rgba(57, 255, 20, .4), inset 0 0 10px rgba(57, 255, 20, .25);
+}
+
+.event-card {
+    border: 2px solid var(--pink); border-radius: 16px;
+    padding: 14px 16px; background: rgba(255, 42, 133, .08);
+    box-shadow: 0 0 14px rgba(255, 42, 133, .35), inset 0 0 12px rgba(255, 42, 133, .18);
+    transition: border-color .4s, box-shadow .4s;
+}
+.event-card__label {
+    font-family: var(--font-hud); font-size: .82rem; letter-spacing: 2px;
+    text-transform: uppercase; color: #fff; text-shadow: 0 0 8px var(--pink);
+}
+.event-card__time {
+    font-family: var(--font-body); font-weight: 600;
+    font-size: clamp(.85rem, 3.4vw, 1rem); color: var(--muted); margin: 6px 0 10px;
+}
+.event-card__status {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    font-family: var(--font-hud);
+}
+.event-card__state {
+    font-size: .7rem; letter-spacing: 2px; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 20px;
+    border: 1px solid var(--pink); color: var(--pink);
+}
+.event-card__clock { font-size: 1.4rem; color: #fff; text-shadow: 0 0 10px var(--green); }
+
+/* OPEN state turns the card green and pulses */
+.event-card.is-open { border-color: var(--green); box-shadow: 0 0 18px var(--green), inset 0 0 14px rgba(57,255,20,.3); animation: open-glow 1.6s ease-in-out infinite alternate; }
+.event-card.is-open .event-card__state { border-color: var(--green); color: #06210a; background: var(--green); text-shadow: none; }
+.event-card.is-open .event-card__label { text-shadow: 0 0 8px var(--green); }
+
+.hud__hint {
+    margin-top: 16px; font-size: .8rem; color: var(--muted);
+    letter-spacing: .5px; opacity: .85;
+}
+
+/* ---------- 5. Clickable NPCs / objects ---------- */
+.npcs { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.npc {
+    position: absolute; pointer-events: auto;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    background: none; border: none; cursor: pointer;
+    color: var(--ink); font-family: var(--font-hud);
+}
+/* Positions chosen to clear the fixed quest tracker (top-left) and controls (top-right). */
+.npc--host      { left: 5%;  bottom: 14%; }
+.npc--bartender { right: 5%; bottom: 14%; }
+.npc--board     { left: 6%;  top: 52%; }
+.npc--crystal   { right: 6%; top: 30%; }
+
+.npc__sprite {
+    width: 92px; height: 92px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 40%, rgba(255, 42, 133, .22), transparent 70%);
+    transition: transform .25s, filter .25s;
+    animation: float 3.4s ease-in-out infinite;
+}
+.npc__img { width: 72px; height: 72px; image-rendering: pixelated; filter: drop-shadow(0 0 8px var(--pink)); }
+
+/* Notice board placeholder icon */
+.npc__sprite--board { background: radial-gradient(circle at 50% 40%, rgba(255, 209, 102, .25), transparent 70%); }
+.npc__sprite--board i { font-size: 2.6rem; color: var(--gold); filter: drop-shadow(0 0 10px var(--gold)); }
+
+/* Crystal placeholder gem (pure CSS diamond) */
+.npc__sprite--crystal { background: radial-gradient(circle at 50% 40%, rgba(40, 224, 255, .3), transparent 70%); }
+.crystal-gem {
+    width: 42px; height: 60px;
+    background: linear-gradient(145deg, #bff6ff, var(--cyan) 45%, #1a7fae);
+    clip-path: polygon(50% 0%, 100% 32%, 78% 100%, 22% 100%, 0% 32%);
+    filter: drop-shadow(0 0 12px var(--cyan));
+    animation: crystal-spin 5s ease-in-out infinite;
+}
+
+/* Hover / focus: glow + lift + reveal label */
+.npc:hover .npc__sprite,
+.npc:focus-visible .npc__sprite { transform: scale(1.16) translateY(-4px); }
+.npc:hover .npc__img,
+.npc:focus-visible .npc__img { filter: drop-shadow(0 0 14px var(--green)) drop-shadow(0 0 6px #fff); }
+.npc:focus-visible { outline: none; }
+
+.npc__label {
+    font-size: .72rem; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 5px 11px; border-radius: 20px;
+    background: var(--panel-solid); border: 1px solid rgba(255, 255, 255, .25);
+    box-shadow: 0 0 10px rgba(0, 0, 0, .6);
+    opacity: 0; transform: translateY(-4px); transition: opacity .2s, transform .2s;
+    white-space: nowrap;
+}
+.npc__label em { color: var(--green); font-style: normal; }
+.npc:hover .npc__label, .npc:focus-visible .npc__label { opacity: 1; transform: translateY(0); }
+
+/* A quest already completed gets a subtle check ring */
+.npc.done .npc__sprite::after {
+    content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+    position: absolute; top: -2px; right: -2px;
+    width: 24px; height: 24px; border-radius: 50%;
+    display: grid; place-items: center; font-size: .7rem;
+    background: var(--green); color: #06210a;
+    box-shadow: 0 0 10px var(--green);
+}
+.npc__sprite { position: relative; }
+
+/* ---------- 6. Quest tracker ---------- */
+.quest-tracker {
+    position: fixed; top: 18px; left: 18px; z-index: 40;
+    width: 250px; max-width: 72vw;
+    background: var(--panel-solid);
+    border: 2px solid var(--green); border-radius: 14px;
+    box-shadow: 0 0 16px rgba(57, 255, 20, .35), inset 0 0 12px rgba(57, 255, 20, .12);
+    overflow: hidden;
+}
+.quest-tracker__toggle {
+    width: 100%; text-align: left; cursor: pointer;
+    font-family: var(--font-hud); font-size: .9rem; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--green);
+    background: rgba(57, 255, 20, .08); border: none;
+    padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+    text-shadow: 0 0 8px var(--green);
+}
+.quest-tracker__body { padding: 6px 14px 14px; }
+.quest-tracker.collapsed .quest-tracker__body { display: none; }
+
+.quest-list { list-style: none; }
+.quest-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 0; font-size: 1rem; color: var(--ink);
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+.quest-item:last-child { border-bottom: none; }
+.quest-item__box {
+    width: 20px; height: 20px; flex-shrink: 0; border-radius: 5px;
+    border: 2px solid var(--muted); display: grid; place-items: center;
+    font-size: .65rem; color: transparent; transition: all .3s;
+}
+.quest-item.done .quest-item__box { background: var(--green); border-color: var(--green); color: #06210a; box-shadow: 0 0 10px var(--green); }
+.quest-item.done .quest-item__label { color: var(--muted); text-decoration: line-through; }
+.quest-item__label { letter-spacing: .5px; }
+
+.quest-complete {
+    margin-top: 12px; padding: 12px; border-radius: 10px;
+    text-align: center; font-family: var(--font-hud); font-size: .82rem;
+    color: var(--gold); border: 1px solid var(--gold);
+    background: rgba(255, 209, 102, .08);
+    text-shadow: 0 0 10px var(--gold); box-shadow: 0 0 14px rgba(255, 209, 102, .3);
+    animation: pop-in .5s ease;
+}
+.quest-complete i { display: block; font-size: 1.4rem; margin-bottom: 6px; }
+
+/* ---------- 7. Controls ---------- */
+.controls { position: fixed; top: 18px; right: 18px; z-index: 40; display: flex; gap: 10px; }
+.ctrl-btn {
+    width: 46px; height: 46px; border-radius: 12px; cursor: pointer;
+    background: var(--panel-solid); border: 2px solid var(--cyan); color: var(--cyan);
+    font-size: 1.1rem; display: grid; place-items: center;
+    box-shadow: 0 0 12px rgba(40, 224, 255, .3); transition: transform .15s, box-shadow .25s, color .25s;
+}
+.ctrl-btn:hover { transform: translateY(-2px); box-shadow: 0 0 16px var(--cyan); }
+.ctrl-btn.is-on { color: var(--green); border-color: var(--green); box-shadow: 0 0 16px var(--green); }
+
+/* ---------- 8. Mascot + wanderer ---------- */
+.mascot {
+    position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%);
+    width: 30px; height: 30px; z-index: 4;
+    background: none; border: none; cursor: pointer; opacity: .35;
+    transition: opacity .3s, transform .3s, filter .3s;
+    animation: float 4s ease-in-out infinite;
+}
+.mascot img { width: 100%; height: 100%; image-rendering: pixelated; }
+.mascot:hover, .mascot:focus-visible { opacity: 1; transform: translateX(-50%) scale(1.4); filter: drop-shadow(0 0 12px var(--green)); outline: none; }
+.mascot.found { display: none; }
+
+.wanderer {
+    position: fixed; top: 30%; left: 0; z-index: 3;
+    width: 46px; height: 46px; pointer-events: none;
+    transform: translateX(-120px); opacity: .85;
+}
+.wanderer img { width: 100%; height: 100%; image-rendering: pixelated; filter: drop-shadow(0 0 10px var(--cyan)); }
+
+/* ---------- 9. Dialogue modal + content ---------- */
+.dialogue-overlay {
+    position: fixed; inset: 0; z-index: 800;
+    background: rgba(5, 4, 10, .8); backdrop-filter: blur(7px);
+    display: flex; align-items: center; justify-content: center; padding: 18px;
+    opacity: 0; transition: opacity .25s;
+}
+/* `hidden` must win over display:flex, or the invisible overlay eats every click */
+.dialogue-overlay[hidden] { display: none; }
+.dialogue-overlay.show { opacity: 1; }
+
+.dialogue {
+    position: relative; width: 100%; max-width: 540px;
+    max-height: 86dvh; display: flex; flex-direction: column;
+    background:
+        linear-gradient(180deg, rgba(20, 10, 26, .98), rgba(8, 6, 14, .98));
+    border: 2px solid var(--pink); border-radius: 18px;
+    box-shadow: 0 0 26px rgba(255, 42, 133, .5), inset 0 0 18px rgba(255, 42, 133, .15);
+    padding: 20px; transform: translateY(18px) scale(.96);
+    transition: transform .3s ease;
+}
+.dialogue-overlay.show .dialogue { transform: translateY(0) scale(1); }
+
+.dialogue__close {
+    position: absolute; top: 12px; right: 14px;
+    background: none; border: none; cursor: pointer;
+    color: var(--pink); font-size: 1.4rem; transition: transform .2s, color .2s;
+}
+.dialogue__close:hover { transform: scale(1.15); color: #fff; text-shadow: 0 0 10px var(--pink); }
+
+.dialogue__header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; padding-right: 30px; }
+.dialogue__avatar {
+    width: 60px; height: 60px; flex-shrink: 0; border-radius: 50%;
+    border: 2px solid var(--green); overflow: hidden;
+    display: grid; place-items: center; background: rgba(57, 255, 20, .08);
+    box-shadow: 0 0 12px rgba(57, 255, 20, .35);
+}
+.dialogue__avatar img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.dialogue__avatar i { font-size: 1.6rem; color: var(--green); }
+.dialogue__avatar .crystal-gem { width: 28px; height: 40px; }
+.dialogue__name {
+    font-family: var(--font-hud); font-size: 1.25rem; letter-spacing: 1px;
+    color: #fff; text-shadow: 0 0 10px var(--pink);
+}
+
+.dialogue__body { overflow-y: auto; padding-right: 6px; }
+.dialogue__body::-webkit-scrollbar { width: 6px; }
+.dialogue__body::-webkit-scrollbar-thumb { background: var(--pink); border-radius: 10px; }
+
+/* Typewriter text line */
+.dialogue__text {
+    font-size: 1.18rem; line-height: 1.5; color: var(--ink); min-height: 1.5em;
+    border-left: 3px solid var(--green); padding-left: 14px;
+}
+.dialogue__text .caret { color: var(--green); animation: blink 1s steps(1) infinite; }
+
+.dialogue__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.dialogue__actions:empty { display: none; }
+.dialogue__actions .btn { flex: 1 1 auto; justify-content: center; font-size: .9rem; padding: 12px 16px; }
+
+/* Staff: RPG character cards */
+.staff-grid { display: grid; gap: 12px; }
+.staff-card {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid rgba(255, 42, 133, .4); border-radius: 12px;
+    padding: 12px; background: rgba(255, 42, 133, .05);
+}
+.staff-card__avatar {
+    width: 56px; height: 56px; flex-shrink: 0; border-radius: 50%;
+    border: 2px solid var(--green); overflow: hidden; background: rgba(57,255,20,.08);
+    box-shadow: 0 0 10px rgba(57, 255, 20, .3);
+}
+.staff-card__avatar img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.staff-card__name { font-family: var(--font-hud); color: #fff; text-shadow: 0 0 6px var(--pink); font-size: 1.05rem; }
+.staff-card__role { font-size: .8rem; color: var(--green); letter-spacing: 1px; text-transform: uppercase; }
+.staff-card__quote { font-size: .95rem; color: var(--muted); font-style: italic; margin-top: 4px; }
+
+/* Menu: RPG item shop */
+.shop-section + .shop-section { margin-top: 18px; }
+.shop-section__title {
+    font-family: var(--font-hud); font-size: .85rem; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--green); text-shadow: 0 0 8px var(--green);
+    border-bottom: 1px solid rgba(57, 255, 20, .4); padding-bottom: 6px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+}
+.shop-item { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+.shop-item:last-child { border-bottom: none; }
+.shop-item__icon {
+    width: 40px; height: 40px; border-radius: 9px; overflow: hidden;
+    border: 1px solid var(--pink); background: rgba(255, 42, 133, .1);
+    display: grid; place-items: center;
+}
+.shop-item__icon img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.shop-item__name { font-weight: 700; color: #fff; }
+.shop-item__flavor { font-size: .82rem; color: var(--muted); font-style: italic; }
+.shop-item__price { font-family: var(--font-hud); color: var(--gold); text-shadow: 0 0 8px var(--gold); white-space: nowrap; }
+
+/* ---------- 10. Popups ---------- */
+.achievement {
+    position: fixed; top: 80px; right: 18px; z-index: 900;
+    display: flex; align-items: center; gap: 12px;
+    background: var(--panel-solid); border: 2px solid var(--gold); border-radius: 12px;
+    padding: 12px 16px; box-shadow: 0 0 20px rgba(255, 209, 102, .5);
+    transform: translateX(130%); transition: transform .45s cubic-bezier(.2,.9,.3,1.3);
+}
+.achievement[hidden] { display: none; }
+.achievement.show { transform: translateX(0); }
+.achievement__icon { font-size: 1.6rem; color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+.achievement__kicker { font-family: var(--font-hud); font-size: .62rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+.achievement__text { font-weight: 700; color: #fff; }
+
+.toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    z-index: 900; background: rgba(57, 255, 20, .14); border: 2px solid var(--green);
+    color: #fff; font-family: var(--font-hud); font-size: .9rem;
+    padding: 12px 22px; border-radius: 12px; text-shadow: 0 0 6px var(--green);
+    box-shadow: 0 0 16px rgba(57, 255, 20, .4);
+    opacity: 0; transition: opacity .25s, transform .25s;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---------- 11. Animations ---------- */
+@keyframes bg-drift { 0% { transform: scale(1.05) translate(0, 0); } 100% { transform: scale(1.12) translate(-1.5%, -1.5%); } }
+@keyframes hud-pulse {
+    0%   { box-shadow: 0 0 6px #fff, 0 0 18px var(--pink), 0 0 36px rgba(255,42,133,.5), inset 0 0 14px rgba(255,42,133,.3); }
+    100% { box-shadow: 0 0 6px #fff, 0 0 24px var(--pink), 0 0 56px rgba(255,42,133,.7), inset 0 0 22px rgba(255,42,133,.5); }
+}
+@keyframes open-glow { 0% { box-shadow: 0 0 14px var(--green), inset 0 0 12px rgba(57,255,20,.25); } 100% { box-shadow: 0 0 26px var(--green), inset 0 0 18px rgba(57,255,20,.45); } }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes crystal-spin { 0%,100% { transform: rotateY(0) scale(1); } 50% { transform: rotateY(180deg) scale(1.08); } }
+@keyframes enter-pulse { 0%,100% { box-shadow: 0 0 14px var(--pink); } 50% { box-shadow: 0 0 26px var(--pink), 0 0 44px rgba(255,42,133,.6); } }
+@keyframes pop-in { 0% { transform: scale(.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .001s !important; animation-iteration-count: 1 !important; }
+    .bg-scene { animation: none; }
+}
+
+/* ---------- 12. Responsive ---------- */
+/* On touch screens, always show NPC labels so taps are obvious. */
+@media (hover: none) {
+    .npc__label { opacity: 1; transform: none; }
+}
+
+@media (max-width: 820px) {
+    /* NPCs leave absolute layout and stack into a 2x2 grid under the HUD */
+    .scene { justify-content: flex-start; padding-top: 96px; gap: 28px; }
+    .npcs {
+        position: static; pointer-events: auto;
+        display: grid; grid-template-columns: repeat(2, 1fr);
+        gap: 18px 12px; width: 100%; max-width: 460px; margin-top: 56px;
+    }
+    .npc { position: static; }
+    .npc__sprite { width: 110px; height: 110px; }   /* larger touch targets */
+    .npc__img { width: 86px; height: 86px; }
+    .mascot { position: fixed; bottom: 14px; left: auto; right: 14px; transform: none; width: 36px; height: 36px; }
+    .mascot:hover, .mascot:focus-visible { transform: scale(1.4); }
+}
+
+@media (max-width: 560px) {
+    .quest-tracker { top: 12px; left: 12px; width: 200px; }
+    .quest-tracker.collapsed { width: auto; }
+    .controls { top: 12px; right: 12px; }
+    .hud { padding-top: 40px; }
+    .hud__title { font-size: clamp(3rem, 16vw, 4rem); }
+    .dialogue { padding: 16px; }
+    .dialogue__actions .btn { flex: 1 1 100%; }
+}

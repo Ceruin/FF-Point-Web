@@ -2,998 +2,163 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FFXIV Venue Placeholder</title>
-    
-    <!-- Google Fonts: Combined Neonderthaw, Orbitron, and Rajdhani -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Placeholder — A Neon Venue</title>
+
+    <!-- Fonts: Neonderthaw (venue script), Orbitron (HUD), Rajdhani (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Neonderthaw&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Neonderthaw&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <style>
-        :root {
-            --neon-pink: #ff2a85;
-            --neon-green: #39ff14;
-            --bg-color: #0d0d12;
-            --glass-dead: #3a0f20; /* Color of unlit neon tubing */
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        /* Hide default cursor to use our custom one */
-        body, button, a, .hidden-corn, .close-btn, .game-close {
-            cursor: none !important;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: #ffffff;
-            font-family: 'Rajdhani', sans-serif;
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; padding: 20px; overflow-x: hidden;
-        }
-
-        /* --- Background Pattern / Image System --- */
-        .bg-pattern {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -2; 
-            opacity: 0.85; 
-            
-            /* HOW TO ADD YOUR REAL BACKGROUND IMAGE LATER:
-               Remove the background-image SVG and replace it with your image url:
-               background: url('path/to/your/image.jpg') no-repeat center center / cover;
-            */
-            background: url('images/bkg-bar.png') no-repeat center center / cover;
-        }
-
-        /* Ambient gradient to tie the background to the center */
-        .bg-gradient {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
-            background-image: radial-gradient(circle at 50% 50%, rgba(20, 20, 30, 0.4) 0%, rgba(5, 5, 10, 0.8) 100%);
-            pointer-events: none;
-        }
-
-        /* --- Custom Cursor System --- */
-        #custom-cursor {
-            position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
-            transform: translate(-50%, -50%); transition: transform 0.15s ease, filter 0.15s ease;
-        }
-        #custom-cursor img {
-            width: 28px; height: 28px; display: block;
-            filter: drop-shadow(0 0 10px var(--neon-pink));
-        }
-        #custom-cursor.hovering {
-            transform: translate(-50%, -50%) scale(1.4);
-        }
-        #custom-cursor.hovering img {
-            filter: drop-shadow(0 0 12px var(--neon-green));
-        }
-        @media (pointer: coarse) {
-            #custom-cursor { display: none !important; }
-            body, button, a, .hidden-corn, .close-btn, .game-close { cursor: auto !important; }
-            .hidden-corn, button, .close-btn, .game-close { cursor: pointer !important; }
-        }
-
-        /* --- Page Dimmer for Power Surge Effect --- */
-        #dim-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.6); z-index: 900; pointer-events: none;
-            opacity: 0; transition: opacity 0.05s ease-in-out; mix-blend-mode: multiply;
-        }
-        #dim-overlay.active { opacity: 1; }
-
-        /* --- Main Container (Neon Glass Tube) --- */
-        .app-container {
-            width: 100%; max-width: 600px; 
-            border: 4px solid #fff; 
-            border-radius: 25px;
-            margin-top: 30px; 
-            padding: 45px 20px 30px 20px;
-            background: rgba(13, 13, 18, 0.6); 
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            box-shadow: 
-                0 0 5px #fff,
-                0 0 15px var(--neon-pink), 
-                0 0 30px var(--neon-pink),
-                0 0 50px var(--neon-pink),
-                inset 0 0 10px var(--neon-pink),
-                inset 0 0 20px var(--neon-pink);
-            animation: border-pulse-pink 4s infinite alternate; 
-            position: relative;
-            transition: all 0.05s;
-            border-top: 4px solid #fff;
-        }
-
-
-        /* --- Title (Neonderthaw Script) --- */
-        .main-title {
-            position: absolute;
-            top: 0; left: 50%;
-            /* Place the text so its bottom sits on the top border */
-            transform: translate(-50%, -100%);
-            text-align: center;
-            font-family: "Neonderthaw", cursive;
-            font-weight: 400;
-            font-style: normal;
-            font-size: 5.5rem;
-            line-height: 0.8;
-            color: #fff;
-            text-shadow:
-                0 0 5px #fff,
-                0 0 10px #fff,
-                0 0 20px var(--neon-pink),
-                0 0 40px var(--neon-pink),
-                0 0 80px var(--neon-pink);
-            white-space: nowrap;
-            background: none;
-            box-shadow: none;
-            border-radius: 1em;
-            display: inline-block;
-            padding: 0 40px;
-            z-index: 10;
-            transition: all 0.05s;
-        }
-
-        .main-title::before {
-            display: none;
-        }
-
-        /* --- Failing Neon Flicker State --- */
-        .app-container.flicker-off {
-            border-color: var(--glass-dead) !important;
-            box-shadow: none !important;
-            animation: none !important;
-        }
-        .main-title.flicker-off {
-            color: var(--glass-dead) !important;
-            text-shadow: 0 0 2px #110508 !important; /* Just a tiny, dark shadow to look like dead glass */
-        }
-
-        /* --- Easter Eggs (Subtle blending opacity) --- */
-        .hidden-corn {
-            position: absolute; z-index: 10;
-            opacity: 0.35;
-            transition: transform 0.2s, opacity 0.2s, filter 0.2s;
-            user-select: none;
-            --corn-offset-x: 0px;
-            --corn-offset-y: 0px;
-            --corn-rotate: 0deg;
-            transform: rotate(var(--corn-rotate)) translate(var(--corn-offset-x), var(--corn-offset-y));
-            filter: drop-shadow(0 0 5px rgba(255, 255, 0, 0.5));
-        }
-        .hidden-corn img { width: 28px; height: 28px; display: block; }
-        .hidden-corn:hover { 
-            transform: rotate(var(--corn-rotate)) translate(var(--corn-offset-x), var(--corn-offset-y)) scale(1.3); 
-            opacity: 1; 
-        }
-        .hidden-corn.glow {
-            opacity: 1;
-            filter: drop-shadow(0 0 12px var(--neon-green)) drop-shadow(0 0 20px var(--neon-green));
-        }
-        #corn-1 { top: -12px; left: 30px; --corn-rotate: -20deg; }
-        #corn-2 { top: 45%; right: -10px; --corn-rotate: 15deg; }
-        #corn-3 { bottom: 85px; left: 15px; --corn-rotate: -10deg; }
-
-        #toast-notification {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(57, 255, 20, 0.2); border: 2px solid var(--neon-green); color: #fff;
-            padding: 10px 20px; border-radius: 10px; font-family: 'Orbitron', sans-serif;
-            text-shadow: 0 0 5px var(--neon-green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.5); z-index: 3000; display: none;
-        }
-
-        /* --- Header Location Info --- */
-        .location-header {
-            border: 2px solid #fff; border-radius: 20px; padding: 10px; text-align: center;
-            font-family: 'Orbitron', sans-serif; font-size: 0.9rem; letter-spacing: 2px; color: #fff;
-            background: rgba(57, 255, 20, 0.05);
-            text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-green); 
-            box-shadow: 0 0 5px #fff, 0 0 15px var(--neon-green), inset 0 0 10px var(--neon-green);
-            margin-top: -30px;
-            margin-bottom: 30px; animation: border-pulse-green 3s infinite alternate;
-        }
-
-        /* --- Middle Section (Staff & Menu) --- */
-        .top-features { display: flex; justify-content: space-around; margin-bottom: 40px; }
-        .feature-btn { background: transparent; border: none; color: #fff; text-align: center; transition: transform 0.3s; }
-        .feature-btn:hover { transform: scale(1.1); }
-        
-        .feature-icon-wrapper { font-size: 3.5rem; color: #fff; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
-        .feature-icon-image { width: 56px; height: 56px; display: block; filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px var(--neon-pink)) drop-shadow(0 0 24px var(--neon-pink)); }
-        .feature-btn:nth-child(2) .feature-icon-wrapper { animation-delay: 1.5s; }
-        .feature-btn:nth-child(2) .feature-icon-image { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px var(--neon-green)) drop-shadow(0 0 24px var(--neon-green)); }
-        .feature-text { font-size: 1.1rem; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; font-family: "Monoton", cursive; }
-
-        /* --- Center Section (Schedule & Dancers) --- */
-        .center-stage { display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; position: relative; }
-        .speech-bubble { border: 2px solid var(--neon-pink); border-radius: 20px; padding: 15px 25px; font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #fff; text-shadow: 0 0 8px var(--neon-pink); box-shadow: 0 0 10px rgba(255, 42, 133, 0.4); position: relative; margin-bottom: 25px; text-align: center; background: rgba(255, 42, 133, 0.1); }
-        .speech-bubble .wavy-text { display: inline-flex; }
-        .speech-bubble .wavy-text span { display: inline-block; animation: wavy-text 2.4s ease-in-out infinite; }
-        .speech-bubble .wavy-text span:nth-child(1) { animation-delay: 0s; }
-        .speech-bubble .wavy-text span:nth-child(2) { animation-delay: 0.05s; }
-        .speech-bubble .wavy-text span:nth-child(3) { animation-delay: 0.1s; }
-        .speech-bubble .wavy-text span:nth-child(4) { animation-delay: 0.15s; }
-        .speech-bubble .wavy-text span:nth-child(5) { animation-delay: 0.2s; }
-        .speech-bubble .wavy-text span:nth-child(6) { animation-delay: 0.25s; }
-        .speech-bubble .wavy-text span:nth-child(7) { animation-delay: 0.3s; }
-        .speech-bubble .wavy-text span:nth-child(8) { animation-delay: 0.35s; }
-        .speech-bubble .wavy-text span:nth-child(9) { animation-delay: 0.4s; }
-        .speech-bubble .wavy-text span:nth-child(10) { animation-delay: 0.45s; }
-        .speech-bubble .wavy-text span:nth-child(11) { animation-delay: 0.5s; }
-        .speech-bubble .wavy-text span:nth-child(12) { animation-delay: 0.55s; }
-        .speech-bubble .wavy-text span:nth-child(13) { animation-delay: 0.6s; }
-        .speech-bubble .wavy-text span:nth-child(14) { animation-delay: 0.65s; }
-        .speech-bubble .wavy-text span:nth-child(15) { animation-delay: 0.7s; }
-        .speech-bubble .wavy-text span:nth-child(16) { animation-delay: 0.75s; }
-        .speech-bubble .wavy-text span:nth-child(17) { animation-delay: 0.8s; }
-        .speech-bubble .wavy-text span:nth-child(18) { animation-delay: 0.85s; }
-        .speech-bubble .wavy-text span:nth-child(19) { animation-delay: 0.9s; }
-        .speech-bubble .wavy-text span:nth-child(20) { animation-delay: 0.95s; }
-        .speech-bubble .wavy-text span:nth-child(21) { animation-delay: 1s; }
-        .speech-bubble .wavy-text span:nth-child(22) { animation-delay: 1.05s; }
-        .speech-bubble .wavy-text span:nth-child(23) { animation-delay: 1.1s; }
-        .speech-bubble .wavy-text span:nth-child(24) { animation-delay: 1.15s; }
-        .speech-bubble .wavy-text span:nth-child(25) { animation-delay: 1.2s; }
-        .speech-bubble .wavy-text span:nth-child(26) { animation-delay: 1.25s; }
-        .speech-bubble .wavy-text span:nth-child(27) { animation-delay: 1.3s; }
-        .speech-bubble::after { content: ''; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); border-width: 15px 15px 0; border-style: solid; border-color: var(--neon-pink) transparent transparent transparent; display: block; width: 0; }
-        .speech-bubble::before { content: ''; position: absolute; bottom: -11px; left: 50%; transform: translateX(-50%); border-width: 13px 13px 0; border-style: solid; border-color: #0d0d12 transparent transparent transparent; display: block; width: 0; z-index: 1; }
-
-        .dancers { display: flex; justify-content: center; gap: 20px; }
-        .dancer-image { width: 48px; height: 48px; display: block; filter: drop-shadow(0 0 10px var(--neon-green)); }
-        .dancer-image.is-bunny { position: relative; transition: transform 0.8s ease; will-change: transform; }
-
-        /* --- SPRITE ANIMATION SYSTEM CSS --- */
-        .sprite-animator { display: inline-flex; justify-content: center; align-items: center; transition: transform 0.1s; }
-        .sprite-animator[data-state="action"] i { animation: sprite-shake 0.3s infinite alternate; }
-        .sprite-animator[data-state="idle"].is-dancer i { animation: dance 1s infinite alternate; }
-
-        /* --- Bottom Bar (Footer Actions) --- */
-        .action-footer { display: flex; justify-content: space-between; align-items: stretch; border: 2px solid var(--neon-green); border-radius: 20px; padding: 5px; background: rgba(57, 255, 20, 0.05); box-shadow: 0 0 15px rgba(57, 255, 20, 0.2); }
-        .footer-btn { background: transparent; border: 2px solid transparent; color: #fff; padding: 10px 20px; border-radius: 15px; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; transition: all 0.3s; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; }
-        .footer-btn .btn-icon { font-size: 1.1rem; }
-        .footer-btn:hover { border-color: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); color: #fff; }
-        .time-display { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 20px; border-left: 2px solid rgba(57, 255, 20, 0.3); border-right: 2px solid rgba(57, 255, 20, 0.3); }
-        .time-display.is-live { border-left-color: rgba(57, 255, 20, 0.7); border-right-color: rgba(57, 255, 20, 0.7); }
-        .time-display.is-closed { border-left-color: rgba(255, 42, 133, 0.7); border-right-color: rgba(255, 42, 133, 0.7); }
-        .time-label { font-size: 0.9rem; color: #aaa; text-transform: uppercase; display: flex; align-items: center; gap: 8px; justify-content: center; }
-        .time-label .views-wrap { display: none; align-items: center; gap: 4px; font-size: 0.85rem; text-transform: none; }
-        .time-label.show-views .views-wrap { display: inline-flex; }
-        .time-clock { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; color: #fff; text-shadow: 0 0 10px var(--neon-green); }
-
-        /* --- Modals --- */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(13, 13, 18, 0.85); z-index: 1000; backdrop-filter: blur(8px); }
-        .modal-container { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; background: rgba(10, 10, 15, 0.95); border: 2px solid var(--neon-pink); border-radius: 20px; padding: 30px 20px; box-shadow: 0 0 20px rgba(255, 42, 133, 0.4), inset 0 0 15px rgba(255, 42, 133, 0.2); animation: modal-pop 0.3s ease-out forwards; }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: var(--neon-pink); transition: 0.3s; }
-        .close-btn:hover { color: #fff; text-shadow: 0 0 10px var(--neon-pink); transform: scale(1.1); }
-        .scrollable-area { max-height: 350px; overflow-y: auto; padding-right: 10px; }
-        .scrollable-area::-webkit-scrollbar { width: 6px; }
-        .scrollable-area::-webkit-scrollbar-track { background: rgba(255, 42, 133, 0.1); border-radius: 10px; }
-        .scrollable-area::-webkit-scrollbar-thumb { background: var(--neon-pink); border-radius: 10px; box-shadow: 0 0 5px var(--neon-pink); }
-        .menu-top-art { text-align: center; font-size: 4rem; color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green); margin-bottom: 20px; display: flex; justify-content: center; }
-        .menu-table-container { border: 2px solid rgba(57, 255, 20, 0.5); border-radius: 15px; padding: 10px; background: rgba(57, 255, 20, 0.05); }
-        .menu-header-row { display: grid; grid-template-columns: 40px 1.2fr 60px 1.5fr; gap: 10px; font-family: 'Orbitron', sans-serif; color: var(--neon-green); border-bottom: 2px solid rgba(57, 255, 20, 0.5); padding-bottom: 10px; margin-bottom: 10px; font-size: 0.9rem; }
-        .menu-item-row { display: grid; grid-template-columns: 40px 1.2fr 60px 1.5fr; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .menu-item-row:last-child { border-bottom: none; }
-        .menu-item-icon { width: 35px; height: 35px; border: 1px solid var(--neon-pink); border-radius: 8px; background: rgba(255, 42, 133, 0.1); display: flex; justify-content: center; align-items: center; color: #fff; text-shadow: 0 0 5px var(--neon-pink); font-size: 0.9rem; overflow: hidden; }
-        .menu-item-icon img { width: 100%; height: 100%; object-fit: cover; }
-        .modal-title { text-align: center; font-family: 'Orbitron', sans-serif; color: #fff; text-shadow: 0 0 10px var(--neon-pink); margin-bottom: 25px; font-size: 2rem; letter-spacing: 2px; text-transform: uppercase; }
-        .staff-item { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .staff-avatar { width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--neon-green); box-shadow: 0 0 10px rgba(57, 255, 20, 0.3); flex-shrink: 0; display: flex; justify-content: center; align-items: center; color: #fff; text-shadow: 0 0 10px var(--neon-green); font-size: 1.8rem; background: rgba(57, 255, 20, 0.05); overflow: hidden; }
-        .staff-avatar-image { width: 100%; height: 100%; object-fit: cover; filter: drop-shadow(0 0 6px var(--neon-green)); }
-        .staff-info { flex-grow: 1; border: 1px solid rgba(255, 42, 133, 0.5); border-radius: 12px; padding: 15px; background: rgba(255, 42, 133, 0.05); box-shadow: inset 0 0 10px rgba(255, 42, 133, 0.1); }
-        .staff-name { font-family: 'Orbitron', sans-serif; color: #fff; text-shadow: 0 0 5px var(--neon-pink); font-size: 1.1rem; margin-bottom: 5px; }
-        .staff-desc { color: #ccc; font-size: 0.95rem; }
-
-        /* --- Mini-Game (Corn Ninja) Styles --- */
-        #game-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(13, 13, 18, 0.85); z-index: 5000; backdrop-filter: blur(8px); }
-        .game-modal-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 600px; height: 80vh; max-height: 700px; background: rgba(10, 10, 15, 0.95); border: 2px solid var(--neon-pink); border-radius: 20px; padding: 15px; box-shadow: 0 0 20px rgba(255, 42, 133, 0.4), inset 0 0 15px rgba(255, 42, 133, 0.2); display: flex; flex-direction: column; animation: modal-pop 0.3s ease-out forwards; }
-        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-family: 'Orbitron', sans-serif; color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); font-size: 1.2rem; padding: 0 10px; }
-        .game-close { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); font-size: 1.5rem; transition: transform 0.2s; }
-        .game-close:hover { transform: scale(1.2); }
-        .game-canvas-wrapper { position: relative; flex-grow: 1; border-radius: 12px; border: 1px solid rgba(255, 42, 133, 0.3); overflow: hidden; background: #050508; }
-        #game-canvas { display: block; width: 100%; height: 100%; cursor: none; }
-        
-        .game-ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 8, 0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; text-align: center; }
-        .game-ui-title { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; color: #fff; text-shadow: 0 0 15px var(--neon-pink); margin-bottom: 20px; }
-        .game-ui-desc { font-size: 1.1rem; color: #ccc; margin-bottom: 30px; max-width: 80%; }
-
-        .minigame-avatar-container { position: absolute; bottom: 20px; left: 20px; font-size: 4rem; color: var(--neon-green); text-shadow: 0 0 20px var(--neon-green); pointer-events: none; z-index: 5; transition: all 0.2s ease; }
-        .minigame-avatar-container[data-state="action"] { color: var(--neon-pink); text-shadow: 0 0 20px var(--neon-pink); transform: scale(1.1); }
-
-        /* --- Animations --- */
-        @keyframes border-pulse-pink { 
-            0% { box-shadow: 0 0 5px #fff, 0 0 15px var(--neon-pink), 0 0 30px var(--neon-pink), inset 0 0 10px var(--neon-pink); } 
-            100% { box-shadow: 0 0 5px #fff, 0 0 20px var(--neon-pink), 0 0 50px var(--neon-pink), inset 0 0 20px var(--neon-pink); } 
-        }
-        @keyframes border-pulse-green { 0% { box-shadow: 0 0 5px #fff, 0 0 10px rgba(57, 255, 20, 0.6), inset 0 0 5px rgba(57, 255, 20, 0.3); } 100% { box-shadow: 0 0 5px #fff, 0 0 20px rgba(57, 255, 20, 0.8), inset 0 0 15px rgba(57, 255, 20, 0.6); } }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-        @keyframes dance { 0% { transform: translateY(0) rotate(-5deg); } 100% { transform: translateY(-15px) rotate(5deg); } }
-        @keyframes wavy-text {
-            0% { transform: translateY(0) skewX(0deg); }
-            25% { transform: translateY(-2px) skewX(-1deg); }
-            50% { transform: translateY(1px) skewX(1deg); }
-            75% { transform: translateY(-1px) skewX(-0.5deg); }
-            100% { transform: translateY(0) skewX(0deg); }
-        }
-        @keyframes modal-pop { 0% { transform: translate(-50%, -45%); opacity: 0; } 100% { transform: translate(-50%, -50%); opacity: 1; } }
-        @keyframes sprite-shake { 0% { transform: rotate(-10deg) scale(1.1); } 100% { transform: rotate(10deg) scale(1.1); } }
-
-        /* Responsive Tweaks */
-        @media(max-width: 480px) {
-            .app-container { margin-top: 40px; padding-top: 40px; }
-            .main-title { font-size: 4rem; } /* Adjusted down slightly for mobile, but keeps the scale of Neonderthaw */
-            .action-footer { flex-direction: column; gap: 10px; }
-            .time-display { border: none; border-top: 1px solid rgba(57, 255, 20, 0.3); border-bottom: 1px solid rgba(57, 255, 20, 0.3); padding: 10px 0; }
-            .menu-header-row, .menu-item-row { grid-template-columns: 30px 1fr 40px 1.5fr; font-size: 0.8rem; }
-            .game-ui-title { font-size: 2rem; }
-            .minigame-avatar-container { font-size: 3rem; bottom: 10px; left: 10px; }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <!-- Background Image / Pattern Layer -->
-    <div class="bg-pattern"></div>
-    <div class="bg-gradient"></div>
+    <!-- ============================================================
+         AMBIENT LAYERS  (background, particles, vignette, flicker)
+         ============================================================ -->
+    <div class="bg-scene" aria-hidden="true"></div>
+    <canvas id="particles" aria-hidden="true"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <div id="flicker-dim" aria-hidden="true"></div>
 
-    <!-- Page Dimmer for Flicker Effect -->
-    <div id="dim-overlay"></div>
-
-    <!-- CUSTOM CURSOR DOM ELEMENT -->
-    <div id="custom-cursor"><img src="images/curs-moogle.png" alt="Cursor"></div>
-
-    <div id="toast-notification">Notification</div>
-
-    <div class="app-container">
-        <!-- Title using Neonderthaw font -->
-        <h1 class="main-title">Placeholder</h1>
-
-        <!-- Hidden Easter Eggs -->
-        <div class="hidden-corn" id="corn-1"><img src="images/item-corn.png" alt="Corn"></div>
-        <div class="hidden-corn" id="corn-2"><img src="images/item-corn.png" alt="Corn"></div>
-        <div class="hidden-corn" id="corn-3"><img src="images/item-corn.png" alt="Corn"></div>
-
-        <div class="location-header">CRYSTAL | BEHEMOTH | LIMSA | W17 | P1</div>
-
-        <!-- Middle Section: Staff & Menu -->
-        <div class="top-features">
-            <button class="feature-btn" id="btn-staff">
-                <div class="feature-icon-wrapper sprite-animator" data-state="idle">
-                    <img class="feature-icon-image" src="images/px-point.png" alt="Staff icon">
-                </div>
-                <div class="feature-text">Staff</div>
-            </button>
-            <button class="feature-btn" id="btn-menu">
-                <div class="feature-icon-wrapper sprite-animator" data-state="idle">
-                    <img class="feature-icon-image" src="images/px-azim.png" alt="Menu icon">
-                </div>
-                <div class="feature-text">Menu</div>
+    <!-- ============================================================
+         INTRO SEQUENCE  (typewriter lines -> "Enter the Venue")
+         ============================================================ -->
+    <div id="intro" class="intro">
+        <div class="intro__inner">
+            <p class="intro__line" data-text="Welcome, adventurer."></p>
+            <p class="intro__line" data-text="You have arrived at Placeholder."></p>
+            <p class="intro__line" data-text="Your objective: explore the venue before opening night."></p>
+            <button id="enter-btn" class="btn btn--enter" hidden>
+                <i class="fa-solid fa-door-open"></i> Enter the Venue
             </button>
         </div>
+    </div>
 
-        <!-- Center Section: Schedule & Activity -->
-        <div class="center-stage">
-            <div class="speech-bubble"><span class="wavy-text"><span>S</span><span>a</span><span>t</span><span>u</span><span>r</span><span>d</span><span>a</span><span>y</span><span> </span><span>-</span><span> </span><span>S</span><span>u</span><span>n</span><span>d</span><span>a</span><span>y</span><span>:</span><span> </span><span>1</span><span>1</span><span>:</span><span>0</span><span>0</span><span>-</span><span>3</span><span>:</span><span>0</span><span>0</span></span></div>
-            <div class="dancers">
-                <img class="dancer-image is-bunny" src="images/px-bunny.png" alt="Bunny">
-                <img class="dancer-image" src="images/px-corn.png" alt="Corn">
-                <img class="dancer-image is-bunny" src="images/px-bunny.png" alt="Bunny">
+    <!-- ============================================================
+         MAIN SCENE  (revealed after intro)
+         ============================================================ -->
+    <main id="scene" class="scene" aria-hidden="true">
+
+        <!-- ----- Quest tracker (collapsible on mobile) ----- -->
+        <aside class="quest-tracker" id="quest-tracker">
+            <button class="quest-tracker__toggle" id="quest-toggle" aria-expanded="true">
+                <i class="fa-solid fa-scroll"></i> Quest Log
+            </button>
+            <div class="quest-tracker__body" id="quest-body">
+                <ul class="quest-list" id="quest-list"><!-- injected by app.js --></ul>
+                <p class="quest-complete" id="quest-complete" hidden>
+                    <i class="fa-solid fa-trophy"></i>
+                    Quest Complete: You are ready for opening night.
+                </p>
             </div>
+        </aside>
+
+        <!-- ----- Top-right controls ----- -->
+        <div class="controls">
+            <button class="ctrl-btn" id="sound-toggle" title="Toggle sound" aria-label="Toggle sound">
+                <i class="fa-solid fa-volume-xmark"></i>
+            </button>
+            <button class="ctrl-btn" id="share-btn" title="Copy venue invite" aria-label="Share venue">
+                <i class="fa-solid fa-share-nodes"></i>
+            </button>
         </div>
 
-        <!-- Bottom Footer Section -->
-        <div class="action-footer">
-            <button class="footer-btn" id="btn-share"><i class="fa-solid fa-share-nodes btn-icon"></i>Share</button>
-            <div class="time-display">
-                <span class="time-label"><span class="time-label-text">Live Time</span><span class="views-wrap"><i class="fa-solid fa-user"></i><span id="page-views">0</span></span></span>
-                <span class="time-clock" id="live-clock">00:00:00</span>
+        <!-- ----- Central HUD panel ----- -->
+        <section class="hud" id="hud">
+            <h1 class="hud__title">Placeholder</h1>
+            <div class="hud__location">Crystal | Behemoth | Limsa | W1 | P1</div>
+
+            <!-- Animated event card with live countdown -->
+            <div class="event-card" id="event-card">
+                <div class="event-card__label"><i class="fa-solid fa-star"></i> Tonight's Event</div>
+                <div class="event-card__time">Saturday–Sunday | 11:00 PM – 3:00 AM</div>
+                <div class="event-card__status">
+                    <span class="event-card__state" id="event-state">Opens In</span>
+                    <span class="event-card__clock" id="event-clock">00:00:00</span>
+                </div>
             </div>
-            <button class="footer-btn" id="btn-discord"><i class="fa-brands fa-discord btn-icon"></i>Discord</button>
+            <p class="hud__hint">Tap the glowing characters to explore the venue.</p>
+        </section>
+
+        <!-- ----- Clickable NPCs / objects ----- -->
+        <!-- pointer-events handled per-child so the wrapper doesn't block the HUD -->
+        <div class="npcs" id="npcs">
+
+            <button class="npc npc--host" data-object="staff" data-quest="staff">
+                <span class="npc__sprite">
+                    <img src="images/px-point.png" alt="" class="npc__img">
+                </span>
+                <span class="npc__label">Host <em>· Staff</em></span>
+            </button>
+
+            <button class="npc npc--bartender" data-object="menu" data-quest="menu">
+                <span class="npc__sprite">
+                    <img src="images/px-azim.png" alt="" class="npc__img">
+                </span>
+                <span class="npc__label">Barkeep <em>· Menu</em></span>
+            </button>
+
+            <button class="npc npc--board" data-object="events" data-quest="events">
+                <span class="npc__sprite npc__sprite--board">
+                    <i class="fa-solid fa-scroll"></i>
+                </span>
+                <span class="npc__label">Notice Board <em>· Events</em></span>
+            </button>
+
+            <button class="npc npc--crystal" data-object="discord" data-quest="discord">
+                <span class="npc__sprite npc__sprite--crystal">
+                    <span class="crystal-gem"></span>
+                </span>
+                <span class="npc__label">Aether Crystal <em>· Fellowship</em></span>
+            </button>
+        </div>
+
+        <!-- ----- Hidden mascot (secret easter egg) ----- -->
+        <button class="mascot" id="mascot" aria-label="A tiny something is hiding here">
+            <img src="images/curs-moogle.png" alt="">
+        </button>
+
+        <!-- ----- Wandering minion (flies across occasionally) ----- -->
+        <div class="wanderer" id="wanderer" aria-hidden="true">
+            <img src="images/px-bunny.png" alt="">
+        </div>
+    </main>
+
+    <!-- ============================================================
+         RPG DIALOGUE SYSTEM  (single reusable modal)
+         ============================================================ -->
+    <div class="dialogue-overlay" id="dialogue-overlay" hidden>
+        <div class="dialogue" id="dialogue" role="dialog" aria-modal="true" aria-labelledby="dialogue-name">
+            <button class="dialogue__close" id="dialogue-close" aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <header class="dialogue__header">
+                <div class="dialogue__avatar" id="dialogue-avatar"></div>
+                <h2 class="dialogue__name" id="dialogue-name"></h2>
+            </header>
+            <div class="dialogue__body" id="dialogue-body"></div>
+            <footer class="dialogue__actions" id="dialogue-actions"></footer>
         </div>
     </div>
 
-    <!-- Modals -->
-    <div class="modal-overlay" id="main-modal-overlay">
-        <div class="modal-container" id="menu-modal">
-            <span class="close-btn"><i class="fa-solid fa-xmark"></i></span>
-            <div class="menu-top-art sprite-animator" data-state="idle" data-icon-idle="fa-solid fa-wine-glass"><i class="fa-solid fa-wine-glass"></i></div>
-            
-            <div class="menu-table-container">
-                <div class="menu-header-row">
-                    <span></span><span>Items</span><span>Price</span><span>Description</span>
-                </div>
-                <div class="scrollable-area">
-                    <div class="menu-item-row"><div class="menu-item-icon"><img src="images/item-carmal.png" alt="Caramel Corn"></div><div>Caramel Corn</div><div>45G</div><div>Sweet glazed kernels</div></div>
-                    <div class="menu-item-row"><div class="menu-item-icon"><img src="images/item-corn.png" alt="Corn"></div><div>Corn</div><div>25G</div><div>Classic buttered cob</div></div>
-                    <div class="menu-item-row"><div class="menu-item-icon"><img src="images/item-cornbread.png" alt="Corn Bread"></div><div>Corn Bread</div><div>40G</div><div>Warm honey slice</div></div>
-                    <div class="menu-item-row"><div class="menu-item-icon"><img src="images/item-cornmeal.png" alt="Corn Meal"></div><div>Corn Meal</div><div>30G</div><div>Stone-ground bowl</div></div>
-                    <div class="menu-item-row"><div class="menu-item-icon"><img src="images/item-flint.png" alt="Flint Corn"></div><div>Flint Corn</div><div>55G</div><div>Crunchy roasted kernels</div></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal-container" id="staff-modal">
-            <span class="close-btn"><i class="fa-solid fa-xmark"></i></span>
-            <h2 class="modal-title" style="font-family: 'Orbitron', sans-serif;">Staff</h2>
-            <div class="scrollable-area">
-                <div class="staff-item"><div class="staff-avatar"><img class="staff-avatar-image" src="images/hds-bunny.png" alt="Bunny"></div><div class="staff-info"><div class="staff-name">Bunny</div><div class="staff-desc">Host</div></div></div>
-                <div class="staff-item"><div class="staff-avatar"><img class="staff-avatar-image" src="images/hds-azim.png" alt="Azim"></div><div class="staff-info"><div class="staff-name">Azim</div><div class="staff-desc">Pimp</div></div></div>
-                <div class="staff-item"><div class="staff-avatar"><img class="staff-avatar-image" src="images/hds-corn.png" alt="Corn"></div><div class="staff-info"><div class="staff-name">Corn</div><div class="staff-desc">Corn</div></div></div>
-                <div class="staff-item"><div class="staff-avatar"><img class="staff-avatar-image" src="images/hds-chkn.png" alt="Chicken"></div><div class="staff-info"><div class="staff-name">Chicken</div><div class="staff-desc">Food</div></div></div>
-            </div>
+    <!-- ============================================================
+         POPUPS  (achievement + toast)
+         ============================================================ -->
+    <div class="achievement" id="achievement" hidden>
+        <div class="achievement__icon"><i class="fa-solid fa-award"></i></div>
+        <div class="achievement__copy">
+            <div class="achievement__kicker">Achievement</div>
+            <div class="achievement__text" id="achievement-text"></div>
         </div>
     </div>
 
-    <!-- Mini Game Overlay (Modal Style) -->
-    <div id="game-overlay">
-        <div class="game-modal-container">
-            <div class="game-header">
-                <div>Score: <span id="game-score">0</span></div>
-                <div>Lives: <span id="game-lives">3</span> <i class="fa-solid fa-heart" style="color:var(--neon-pink); font-size:0.9em;"></i></div>
-                <div class="game-close" id="close-game"><i class="fa-solid fa-xmark"></i></div>
-            </div>
-            
-            <div class="game-canvas-wrapper">
-                <div id="start-screen" class="game-ui-overlay">
-                    <h2 class="game-ui-title" style="font-family: 'Orbitron', sans-serif;">Corn Ninja</h2>
-                    <p class="game-ui-desc">Slice the flying corns. Don't let them fall!<br>Score <span id="win-score">3000</span> to win.</p>
-                    <button class="footer-btn" id="start-game-btn">Start Game</button>
-                </div>
-                
-                <div id="lose-screen" class="game-ui-overlay" style="display: none;">
-                    <h2 class="game-ui-title" style="font-family: 'Orbitron', sans-serif;">Aw Shucks!</h2>
-                    <p class="game-ui-desc">You dropped too many corns.</p>
-                    <button class="footer-btn" id="restart-game-btn-lose">Try Again</button>
-                </div>
+    <div class="toast" id="toast" hidden></div>
 
-                <div id="win-screen" class="game-ui-overlay" style="display: none;">
-                    <h2 class="game-ui-title" style="color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green); font-family: 'Orbitron', sans-serif;">Corntastic!</h2>
-                    <p class="game-ui-desc">You sliced them all!</p>
-                    <button class="footer-btn" id="restart-game-btn-win">Play Again</button>
-                </div>
-
-                <div class="minigame-avatar-container sprite-animator" id="game-avatar" data-state="idle" data-icon-idle="fa-solid fa-user-astronaut" data-icon-action="fa-solid fa-user-ninja">
-                    <i class="fa-solid fa-user-astronaut"></i>
-                </div>
-
-                <canvas id="game-canvas"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Interactive Scripts -->
-    <script>
-        $(document).ready(function() {
-
-            // --- Random Failing Neon Flicker System ---
-            function triggerNeonFlicker() {
-                const totalBlinks = Math.floor(Math.random() * 3) + 1; 
-                let currentBlink = 0;
-
-                function executeBlink() {
-                    $('.app-container, .main-title').addClass('flicker-off');
-                    $('#dim-overlay').addClass('active');
-
-                    setTimeout(() => {
-                        $('.app-container, .main-title').removeClass('flicker-off');
-                        $('#dim-overlay').removeClass('active');
-                        
-                        currentBlink++;
-                        if (currentBlink < totalBlinks) {
-                            setTimeout(executeBlink, Math.random() * 100 + 50);
-                        } else {
-                            setTimeout(triggerNeonFlicker, Math.random() * 10000 + 5000);
-                        }
-                    }, Math.random() * 150 + 50); 
-                }
-                executeBlink();
-            }
-
-            setTimeout(triggerNeonFlicker, Math.random() * 5000 + 3000);
-
-
-            // --- Custom Cursor Logic ---
-            $(document).on('mousemove', function(e) {
-                $('#custom-cursor').css({
-                    left: e.clientX + 'px',
-                    top: e.clientY + 'px'
-                });
-            });
-
-            $('button, .hidden-corn, .close-btn, .game-close').hover(
-                function() { $('#custom-cursor').addClass('hovering'); },
-                function() { $('#custom-cursor').removeClass('hovering'); }
-            );
-
-            function updateBunnyHorizontal() {
-                $('.dancer-image.is-bunny').each(function() {
-                    const x = (Math.random() * 16 - 8).toFixed(1);
-                    const flip = x < 0 ? -1 : 1;
-                    $(this).data('bunnyX', x).data('bunnyFlip', flip);
-                });
-                const delay = 1600 + Math.random() * 1200;
-                setTimeout(updateBunnyHorizontal, delay);
-            }
-
-            function updateBunnyVertical() {
-                $('.dancer-image.is-bunny').each(function() {
-                    const x = $(this).data('bunnyX') ?? 0;
-                    const flip = $(this).data('bunnyFlip') ?? 1;
-                    const y = (Math.random() * 12 - 6).toFixed(1);
-                    $(this).css('transform', `translate(${x}px, ${y}px) scaleX(${flip})`);
-                });
-                const delay = 400 + Math.random() * 300;
-                setTimeout(updateBunnyVertical, delay);
-            }
-
-            updateBunnyHorizontal();
-            updateBunnyVertical();
-
-            // --- Sprite Animation Controller ---
-            function playSpriteAnimation($el, state, duration) {
-                $el.attr('data-state', state);
-                const newIcon = $el.attr(`data-icon-${state}`);
-                if (newIcon) { $el.find('i').attr('class', newIcon); }
-
-                if (duration) {
-                    clearTimeout($el.data('animTimer'));
-                    const timer = setTimeout(() => {
-                        $el.attr('data-state', 'idle');
-                        const idleIcon = $el.attr('data-icon-idle');
-                        if (idleIcon) $el.find('i').attr('class', idleIcon);
-                    }, duration);
-                    $el.data('animTimer', timer);
-                }
-            }
-
-
-            // --- General UI Logic --- //
-            function updateClock() {
-                const now = new Date();
-                const schedule = {
-                    days: [0, 6],
-                    startHour: 11,
-                    startMinute: 0,
-                    endHour: 3,
-                    endMinute: 0
-                };
-
-                function getNextWindow(dayOffset) {
-                    const day = new Date(now);
-                    day.setDate(now.getDate() + dayOffset);
-                    const start = new Date(day);
-                    start.setHours(schedule.startHour, schedule.startMinute, 0, 0);
-                    const end = new Date(day);
-                    end.setHours(schedule.endHour, schedule.endMinute, 0, 0);
-                    if (end <= start) end.setDate(end.getDate() + 1);
-                    return { start, end };
-                }
-
-                let currentWindow = null;
-                for (let offset = -1; offset <= 1; offset++) {
-                    const targetDay = (now.getDay() + offset + 7) % 7;
-                    if (!schedule.days.includes(targetDay)) continue;
-                    const window = getNextWindow(offset);
-                    if (now >= window.start && now <= window.end) {
-                        currentWindow = { state: 'OPEN', target: window.end };
-                        break;
-                    }
-                }
-
-                if (!currentWindow) {
-                    let nextStart = null;
-                    for (let offset = 0; offset <= 7; offset++) {
-                        const targetDay = (now.getDay() + offset) % 7;
-                        if (!schedule.days.includes(targetDay)) continue;
-                        const window = getNextWindow(offset);
-                        if (window.start > now) {
-                            nextStart = window.start;
-                            break;
-                        }
-                    }
-                    currentWindow = { state: 'CLOSED', target: nextStart };
-                }
-
-                const diffMs = Math.max(currentWindow.target - now, 0);
-                const totalSeconds = Math.floor(diffMs / 1000);
-                const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-                const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-                const seconds = String(totalSeconds % 60).padStart(2, '0');
-                const $timeDisplay = $('.time-display');
-                const $timeLabel = $('.time-label');
-                const $timeLabelText = $timeLabel.find('.time-label-text');
-                if (currentWindow.state === 'OPEN') {
-                    $timeDisplay.removeClass('is-closed').addClass('is-live');
-                    $timeLabel.removeClass('show-views');
-                    $timeLabelText.text('Live Time');
-                    $('#live-clock').text(`${hours}:${minutes}:${seconds}`);
-                } else {
-                    $timeDisplay.removeClass('is-live').addClass('is-closed');
-                    $timeLabel.addClass('show-views');
-                    $timeLabelText.text('Open Next');
-                    $('#live-clock').text(`${hours}:${minutes}:${seconds}`);
-                }
-            }
-            updateClock();
-            setInterval(updateClock, 1000);
-
-            function updatePageViews() {
-                const launchDate = new Date('2024-11-19T00:00:00Z');
-                const visitorsPerHour = 0.6;
-                const now = new Date();
-                const hoursElapsed = Math.max(0, (now - launchDate) / 36e5);
-                const baseEstimate = visitorsPerHour * hoursElapsed;
-                const daySeed = now.toISOString().slice(0, 10);
-                let hash = 0;
-                for (let i = 0; i < daySeed.length; i++) {
-                    hash = (hash * 31 + daySeed.charCodeAt(i)) % 997;
-                }
-                const dailyVariance = hash % 200;
-                const estimatedVisitors = Math.floor(baseEstimate + dailyVariance);
-                const baseMax = 9000;
-                const year = now.getFullYear();
-                const maxViews = year >= 2027 ? baseMax + (year - 2026) * baseMax : baseMax;
-
-                const sessionKey = 'ffxv_session_visit';
-                const userVisitsKey = 'ffxv_user_visits';
-                const lastVisitKey = 'ffxv_last_visit';
-
-                let userVisits = parseInt(localStorage.getItem(userVisitsKey) || '0', 10);
-
-                if (!sessionStorage.getItem(sessionKey)) {
-                    userVisits += 1;
-                    localStorage.setItem(userVisitsKey, userVisits);
-                    localStorage.setItem(lastVisitKey, now.toISOString());
-                    sessionStorage.setItem(sessionKey, '1');
-                }
-
-                const totalViews = Math.min(Math.max(estimatedVisitors + userVisits, 1), maxViews);
-                $('#page-views').text(totalViews);
-            }
-
-            updatePageViews();
-
-            function showToast(message) {
-                $('#toast-notification').text(message).fadeIn(200);
-                setTimeout(() => { $('#toast-notification').fadeOut(200); }, 2500);
-            }
-
-            // Modal Logic
-            function openModal(modalId) {
-                $('#main-modal-overlay').fadeIn(200);
-                $('.modal-container').hide(); 
-                $(modalId).show(); 
-            }
-
-            function closeModal() { $('#main-modal-overlay').fadeOut(200); }
-            $('.close-btn').click(closeModal);
-            $('#main-modal-overlay').click(function(e) { if (e.target === this) closeModal(); });
-            
-            $('#btn-staff').click(function() { 
-                playSpriteAnimation($(this).find('.sprite-animator'), 'action', 800);
-                openModal('#staff-modal'); 
-            });
-            $('#btn-menu').click(function() { 
-                playSpriteAnimation($(this).find('.sprite-animator'), 'action', 800);
-                openModal('#menu-modal'); 
-            });
-
-            $('#btn-share').click(function() {
-                const originalText = $(this).text();
-                $(this).text("Copied!");
-                $(this).css({color: '#fff', textShadow: '0 0 10px var(--neon-green)', borderColor: 'var(--neon-green)'});
-                setTimeout(() => { $(this).text(originalText).css({color: '', textShadow: '', borderColor: ''}); }, 2000);
-            });
-
-            $('#btn-discord').click(function() { window.open('https://discord.com', '_blank'); });
-
-            // --- Easter Egg Logic --- //
-            let cornsFound = 0;
-
-            function randomizeCornPositions() {
-                $('.hidden-corn').each(function() {
-                    const offsetX = (Math.random() * 10 - 5).toFixed(1);
-                    const offsetY = (Math.random() * 10 - 5).toFixed(1);
-                    $(this).css({
-                        '--corn-offset-x': `${offsetX}px`,
-                        '--corn-offset-y': `${offsetY}px`
-                    });
-                });
-            }
-
-            function scheduleCornGlow() {
-                const delay = 10000 + Math.random() * 5000;
-                setTimeout(() => {
-                    const $corns = $('.hidden-corn:visible');
-                    $corns.removeClass('glow');
-                    if ($corns.length) {
-                        const $target = $corns.eq(Math.floor(Math.random() * $corns.length));
-                        $target.addClass('glow');
-                        setTimeout(() => $target.removeClass('glow'), 1500);
-                    }
-                    scheduleCornGlow();
-                }, delay);
-            }
-
-            randomizeCornPositions();
-            scheduleCornGlow();
-            $('.hidden-corn').click(function() {
-                if ($(this).hasClass('found')) return;
-                
-                $(this).addClass('found').css('pointer-events', 'none');
-                $(this).animate({ top: '-=40px', opacity: 0 }, 400, function() { $(this).hide(); });
-
-                cornsFound++;
-                
-                if (cornsFound < 3) {
-                    showToast(`${cornsFound}/3 Secret Corns Found!`);
-                } else {
-                    showToast(`3/3 Found! Loading Mini-game...`);
-                    setTimeout(initMiniGame, 1500);
-                }
-            });
-
-            // --- Fruit Ninja Canvas Game --- //
-            const canvas = document.getElementById('game-canvas');
-            const ctx = canvas.getContext('2d');
-            let gameActive = false;
-            let score = 0;
-            let lives = 3;
-            const WIN_SCORE = 3000;
-            let gameEntities = [];
-            let trail = [];
-            let isSlicing = false;
-            let animationFrameId;
-
-            const $gameAvatar = $('#game-avatar');
-            $('#win-score').text(WIN_SCORE);
-            const itemImages = [
-                { key: 'corn', src: 'images/item-corn.png' },
-                { key: 'flint', src: 'images/item-flint.png' },
-                { key: 'caramel', src: 'images/item-carmal.png' }
-            ].map(item => {
-                const img = new Image();
-                img.src = item.src;
-                return { key: item.key, img };
-            });
-
-            function resizeCanvas() {
-                canvas.width = canvas.parentElement.clientWidth;
-                canvas.height = canvas.parentElement.clientHeight;
-            }
-            window.addEventListener('resize', resizeCanvas);
-
-            function initMiniGame() {
-                $('#game-overlay').fadeIn(300, function() {
-                    resizeCanvas();
-                    showScreen('#start-screen');
-                });
-            }
-
-            function showScreen(screenId) {
-                $('.game-ui-overlay').hide();
-                $(screenId).show();
-            }
-
-            function startGame() {
-                score = 0;
-                lives = 3;
-                $('#game-score').text(score);
-                $('#game-lives').text(lives);
-                gameEntities = [];
-                trail = [];
-                gameActive = true;
-                $('.game-ui-overlay').hide();
-                
-                if (animationFrameId) cancelAnimationFrame(animationFrameId);
-                gameLoop();
-            }
-
-            function winGame() { gameActive = false; showScreen('#win-screen'); }
-            function loseGame() { gameActive = false; showScreen('#lose-screen'); }
-
-            function closeMiniGame() {
-                gameActive = false;
-                if (animationFrameId) cancelAnimationFrame(animationFrameId);
-                $('#game-overlay').fadeOut(300);
-                
-                cornsFound = 0;
-                $('.hidden-corn').removeClass('found').css({opacity: 0.35, pointerEvents: 'auto', display: 'block'});
-                $('#corn-1').css({top: '-12px'}); $('#corn-2').css({top: '45%'}); $('#corn-3').css({top: 'auto'});
-                randomizeCornPositions();
-            }
-
-            $('#close-game').click(closeMiniGame);
-            $('#start-game-btn, #restart-game-btn-lose, #restart-game-btn-win').click(startGame);
-
-            function getDifficultySettings() {
-                const level = Math.floor(score / 250);
-                const gravity = 0.05 + (level * 0.015);
-                const spawnRate = 0.008 + (level * 0.006);
-                return { gravity, spawnRate };
-            }
-
-            function spawnEntity() {
-                if (!gameActive) return;
-                const { gravity, spawnRate } = getDifficultySettings();
-
-                if (Math.random() < spawnRate) { 
-                    let jumpHeight = canvas.height * (0.60 + Math.random() * 0.35);
-                    let launchVy = -Math.sqrt(2 * gravity * jumpHeight);
-                    let baseVx = (canvas.width * 0.008); 
-                    let maxVx = baseVx * (1 + (score / 2000)); 
-
-                    const item = itemImages[Math.floor(Math.random() * itemImages.length)];
-                    gameEntities.push({
-                        x: Math.random() * (canvas.width - 100) + 50,
-                        y: canvas.height + 60,
-                        vx: (Math.random() - 0.5) * maxVx * 2,
-                        vy: launchVy,
-                        radius: 35,
-                        rotation: 0,
-                        vr: (Math.random() - 0.5) * 0.2,
-                        type: 'corn',
-                        img: item.img
-                    });
-                }
-            }
-
-            function checkSlices(tx, ty) {
-                if (!gameActive) return;
-                const { gravity: currentGravity } = getDifficultySettings();
-
-                for (let i = gameEntities.length - 1; i >= 0; i--) {
-                    let e = gameEntities[i];
-                    if (e.type !== 'corn') continue;
-
-                    let dist = Math.hypot(e.x - tx, e.y - ty);
-                    if (dist < e.radius) {
-                        e.vy = -Math.sqrt(2 * currentGravity * (canvas.height * 0.15));
-                        e.vx += (Math.random() - 0.5) * 8;
-
-                        gameEntities.push({
-                            x: e.x, y: e.y,
-                            vx: e.vx - (Math.random() * 8 - 4), vy: e.vy - 1,
-                            radius: 25, rotation: e.rotation, vr: -e.vr * 2,
-                            type: 'sliced', img: e.img, sliceSide: 'left'
-                        });
-                        gameEntities.push({
-                            x: e.x, y: e.y,
-                            vx: e.vx + (Math.random() * 8 - 4), vy: e.vy - 1,
-                            radius: 25, rotation: e.rotation, vr: e.vr * 2,
-                            type: 'sliced', img: e.img, sliceSide: 'right'
-                        });
-
-                        gameEntities.splice(i, 1);
-                        score += 10;
-                        $('#game-score').text(score);
-                        if (score >= WIN_SCORE) winGame();
-                    }
-                }
-            }
-
-            function gameLoop() {
-                if (!gameActive) return;
-                ctx.fillStyle = 'rgba(5, 5, 8, 0.4)'; 
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                const { gravity: currentGravity } = getDifficultySettings();
-
-                spawnEntity();
-
-                const slicedEntities = [];
-                const activeEntities = [];
-
-                for (let i = gameEntities.length - 1; i >= 0; i--) {
-                    let e = gameEntities[i];
-                    e.vy += currentGravity; e.x += e.vx; e.y += e.vy; e.rotation += e.vr;
-                    
-                    if (e.x - e.radius < 0) { e.x = e.radius; e.vx *= -0.8; } 
-                    else if (e.x + e.radius > canvas.width) { e.x = canvas.width - e.radius; e.vx *= -0.8; }
-
-                    if (e.y > canvas.height + 60) {
-                        if (e.type === 'corn') {
-                            lives--; $('#game-lives').text(lives);
-                            if (lives <= 0) loseGame();
-                        }
-                        gameEntities.splice(i, 1);
-                        continue;
-                    }
-
-                    if (e.type === 'sliced') {
-                        slicedEntities.push(e);
-                    } else {
-                        activeEntities.push(e);
-                    }
-                }
-
-                function drawEntity(e, alpha, scale, blur) {
-                    if (!(e.img && e.img.complete)) return;
-                    ctx.save();
-                    ctx.translate(e.x, e.y);
-                    ctx.rotate(e.rotation);
-                    ctx.globalAlpha = alpha;
-                    if (blur) ctx.filter = blur;
-                    const size = e.radius * 2 * scale;
-                    const halfSize = size / 2;
-                    if (e.type === 'sliced' && e.sliceSide) {
-                        const sx = e.sliceSide === 'left' ? 0 : e.img.width / 2;
-                        const sw = e.img.width / 2;
-                        const dx = e.sliceSide === 'left' ? -halfSize : 0;
-                        ctx.drawImage(e.img, sx, 0, sw, e.img.height, dx, -halfSize, halfSize, size);
-                    } else {
-                        ctx.drawImage(e.img, -halfSize, -halfSize, size, size);
-                    }
-                    ctx.restore();
-                }
-
-                slicedEntities.forEach(e => drawEntity(e, 0.35, 0.9, 'blur(1px)'));
-                activeEntities.forEach(e => drawEntity(e, 1, 1, 'none'));
-
-                if (trail.length > 1) {
-                    ctx.beginPath();
-                    ctx.moveTo(trail[0].x, trail[0].y);
-                    for (let i = 1; i < trail.length; i++) { ctx.lineTo(trail[i].x, trail[i].y); }
-                    ctx.strokeStyle = '#ff2a85'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-                    ctx.shadowBlur = 15; ctx.shadowColor = '#ff2a85'; ctx.stroke(); ctx.shadowBlur = 0;
-                }
-
-                if (trail.length > 0 && !isSlicing) { trail.shift(); trail.shift(); } 
-                else if (trail.length > 15) { trail.shift(); }
-
-                animationFrameId = requestAnimationFrame(gameLoop);
-            }
-
-            // Slice Inputs & Avatar Animation Hooks
-            function getCanvasCoords(clientX, clientY) {
-                const rect = canvas.getBoundingClientRect();
-                return { x: clientX - rect.left, y: clientY - rect.top };
-            }
-
-            function handleInputStart(clientX, clientY) {
-                if (!gameActive) return;
-                isSlicing = true;
-                playSpriteAnimation($gameAvatar, 'action', false); 
-                
-                const coords = getCanvasCoords(clientX, clientY);
-                trail = [{x: coords.x, y: coords.y}];
-                checkSlices(coords.x, coords.y);
-            }
-            
-            function handleInputMove(clientX, clientY) {
-                if (!isSlicing || !gameActive) return;
-                const coords = getCanvasCoords(clientX, clientY);
-                trail.push({x: coords.x, y: coords.y});
-                checkSlices(coords.x, coords.y);
-            }
-            
-            function handleInputEnd() { 
-                if (isSlicing) {
-                    isSlicing = false;
-                    playSpriteAnimation($gameAvatar, 'idle', false);
-                }
-            }
-
-            canvas.addEventListener('mousedown', e => handleInputStart(e.clientX, e.clientY));
-            canvas.addEventListener('mousemove', e => handleInputMove(e.clientX, e.clientY));
-            window.addEventListener('mouseup', handleInputEnd);
-
-            canvas.addEventListener('touchstart', e => {
-                if (e.target === canvas) e.preventDefault();
-                handleInputStart(e.touches[0].clientX, e.touches[0].clientY);
-            }, {passive: false});
-            
-            canvas.addEventListener('touchmove', e => {
-                if (e.target === canvas) e.preventDefault();
-                handleInputMove(e.touches[0].clientX, e.touches[0].clientY);
-            }, {passive: false});
-            
-            window.addEventListener('touchend', handleInputEnd);
-        });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
